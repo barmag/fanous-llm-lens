@@ -1,0 +1,39 @@
+# fanous-llm-lens — runtime requirements
+#
+# Install order (Strix Halo / ROCm 6.4 nightly):
+#
+#   1. Install torch from PyTorch ROCm nightly (separately, due to index URL):
+#        uv pip install torch torchvision torchaudio \
+#          --index-url https://download.pytorch.org/whl/nightly/rocm6.4
+#
+#   2. Then everything else:
+#        uv pip install -r requirements.txt
+#
+# (Or: install the package itself with `uv pip install -e ".[dev]"` after step 1.)
+
+# Core ML
+transformers
+datasets
+accelerate
+huggingface-hub
+hf-transfer
+
+# Mechanistic interpretability
+transformer-lens
+einops
+
+# Visualisation
+plotly
+matplotlib
+
+# Notebooks
+jupyterlab
+ipywidgets
+
+# Experiment tracking
+wandb
+
+# Utility
+pydantic>=2
+tqdm
+rich

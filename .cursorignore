@@ -1,0 +1,23 @@
+# Files Cursor's indexer should skip
+# (saves embedding cost + avoids leaking large/binary artefacts to Cursor's servers)
+
+data/
+checkpoints/
+models/
+wandb/
+mlruns/
+runs/
+outputs/
+
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.gguf
+
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.ruff_cache/
+.pyright/
+.mypy_cache/

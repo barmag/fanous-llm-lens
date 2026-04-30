@@ -1,0 +1,53 @@
+# fanous-llm-lens — Cursor project rules
+
+## Project
+Mechanistic interpretability tooling for Egyptian Arabic (Masri) language models.
+A lantern (فانوس) for looking inside small LLMs trained on or applied to Masri.
+
+## Audience
+Two distinct audiences — design choices should serve both:
+- Mech interp researchers (need TransformerLens-compatible APIs, reproducible experiments)
+- Egyptian Arabic users / linguists (need plain-language explanations, Arabic-script-aware UIs)
+
+## Substrate
+- AMD Strix Halo iGPU (Radeon 8060S, ~24-32GB unified memory)
+- ROCm 6.4 nightly (NOT CUDA — torch sees ROCm via the CUDA API, but assume no NVIDIA-only libs)
+- Linux Fedora 43, Python 3.11+
+- Throughput baseline: 70M-1.5B param models run cleanly; 7B fp16 is the practical ceiling for interactive work
+
+## Stack
+- Package manager: `uv` (not pip directly)
+- ML: torch (ROCm wheel), transformers, transformer-lens, datasets, accelerate, peft, trl
+- Mech interp: transformer-lens, einops, plotly, circuitsvis (optional)
+- Experiment: jupyterlab, wandb
+- Quality: ruff (format + lint), basedpyright (type check)
+
+## Code style
+- Type hints required on all public functions; optional on private helpers
+- Ruff defaults; line length 100
+- No docstrings on trivial helpers — explain *why* in comments only when non-obvious
+- Prefer dataclasses or pydantic for config; avoid loose dicts for structured data
+- Device-agnostic: always `device = "cuda" if torch.cuda.is_available() else "cpu"` — never hardcode `.cuda()` calls (ROCm exposes CUDA API but tests should run on CPU)
+- Default to small models for any new experiment (Pythia-70m / -160m / -410m, GPT-2-small, TinyStories)
+- Memory-aware: prefer gradient accumulation + small batch over multi-GPU sharding patterns
+
+## Arabic-specific conventions
+- Distinguish **Modern Standard Arabic (MSA / Fusha / الفصحى)** from **Egyptian Arabic (Masri / مصري)** — they tokenise differently, behave differently in models, and conflating them is a research error
+- When generating identifiers: English ASCII (snake_case for Python; kebab-case for CLI). Arabic strings live in data, docstrings, and UI text — never in code identifiers
+- When writing eval prompts: store both Latin transliteration and Arabic script side by side
+- Be aware of right-to-left rendering issues in notebooks; use `display.HTML` with `dir="rtl"` when showing Arabic
+
+## Mech interp norms
+- Use TransformerLens conventions where possible (`HookedTransformer`, `model.run_with_cache`, etc.)
+- When discussing "circuits," "features," "heads," "attention patterns" — define the term once in the file and link to a glossary entry rather than re-explaining
+- Default visualisations to plotly + CircuitsVis; matplotlib only when no interactivity is needed
+- Reproducibility: pin random seeds, log model + dataset commit SHAs in experiment outputs
+
+## What to avoid
+- CUDA-only assumptions (no `xformers`, no `flash-attn` v2 unless ROCm port verified)
+- 70B+ model serving experiments — wrong substrate, wrong project
+- Generic Arabic NLP without dialect awareness — the Masri angle is the moat
+- Tooling that only researchers can use — keep at least one user-facing path (notebook, CLI, or mini-UI)
+
+## Imports
+Package import name is `fanous_lens` (underscores). Distribution name is `fanous-llm-lens` (hyphens). Don't conflate.

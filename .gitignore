@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+wheels/
+.installed.cfg
+MANIFEST
+
+# Virtualenv
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.uv-cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Cursor
+.cursor/
+
+# Type checkers
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# Test coverage
+.coverage
+.coverage.*
+.pytest_cache/
+htmlcov/
+.tox/
+
+# ML / experiment artefacts (large, mostly regenerable)
+# Use /* not / so .gitkeep negations below work (git can't re-include
+# files inside a fully-ignored directory)
+data/*
+checkpoints/*
+models/*
+wandb/
+mlruns/
+runs/
+outputs/
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.gguf
+
+# Keep .gitkeep stubs so empty dirs survive
+!data/.gitkeep
+!checkpoints/.gitkeep
+!models/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Local config
+.env
+.env.local
