@@ -40,9 +40,8 @@ fanous-llm-lens/
 ### Install
 
 ```bash
-# Clone (when published)
-# git clone https://github.com/barmag/fanous-llm-lens.git
-# cd fanous-llm-lens
+git clone https://github.com/barmag/fanous-llm-lens.git
+cd fanous-llm-lens
 
 # Create virtualenv
 uv venv
@@ -108,7 +107,7 @@ Mech interp work lives mostly in the top two rows. This is the *natural* fit for
 
 ## Licence
 
-MIT. See `LICENSE` (forthcoming).
+MIT. See [`LICENSE`](LICENSE).
 
 ## Acknowledgements
 
