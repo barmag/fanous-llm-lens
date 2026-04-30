@@ -69,12 +69,12 @@ import fanous_lens as fl
 
 ## Roadmap
 
-**Phase 0 — Foundation** *(current)*
+**Phase 0 — Foundation** *(complete 2026-04-30)*
 - [x] Repo skeleton, config, sanity-check notebook
-- [ ] Smoke-test transformer-lens loading a small model on ROCm
-- [ ] Glossary in `docs/glossary.md` (circuits, features, heads, residual stream — defined once, linked from everywhere)
+- [x] Smoke-test transformer-lens loading a small model on ROCm *(covered by Cell 5 of [`notebooks/00-rocm-sanity-check.ipynb`](notebooks/00-rocm-sanity-check.ipynb), green 2026-04-30)*
+- [x] Glossary in [`docs/glossary.md`](docs/glossary.md) (circuits, features, heads, residual stream — defined once, linked from everywhere)
 
-**Phase 1 — Probing on Arabic**
+**Phase 1 — Probing on Arabic** *(current)*
 - [ ] Tokenizer comparison: how do Pythia / GPT-2 / mGPT tokenise MSA vs Masri?
 - [ ] First probing experiment: where does dialect signal live in the residual stream?
 - [ ] Reproducible prompt set (MSA + Masri pairs) checked into `eval/`
