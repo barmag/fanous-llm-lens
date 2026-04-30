@@ -22,6 +22,9 @@ ENV/
 # uv
 .uv-cache/
 
+# Local cache (wheels, downloads)
+.cache/
+
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb_checkpoints
