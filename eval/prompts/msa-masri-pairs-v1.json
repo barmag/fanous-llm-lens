@@ -1,21 +1,24 @@
 {
-  "schema_version": "v1",
+  "schema_version": "v1.1",
   "name": "msa-masri-pairs",
-  "description": "Hand-crafted minimal pairs: same meaning expressed once in Modern Standard Arabic (MSA / Fusha, الفصحى) and once in Egyptian Arabic (Masri, مصري). Designed for tokenizer + residual-stream probing experiments where the dialect register is the controlled variable.",
+  "description": "Hand-crafted minimal triples: same meaning expressed in Modern Standard Arabic (MSA / Fusha, الفصحى), Egyptian Arabic (Masri, مصري), and English. English is the baseline / control — a comparison between two registers of Arabic without a non-Arabic anchor cannot tell tokenisation effects from general text-complexity effects. Designed for tokenizer + residual-stream probing experiments where the language/register is the controlled variable.",
   "language_codes": {
     "msa": "ar (Modern Standard Arabic, الفصحى)",
-    "masri": "arz (Egyptian Arabic, مصري)"
+    "masri": "arz (Egyptian Arabic, مصري)",
+    "english": "en"
   },
   "construction_notes": [
     "Every pair was hand-crafted by an Egyptian Arabic native speaker. No machine translation.",
     "Pairs aim to be natural in their register — not word-by-word transpositions. A Masri speaker should not feel a Masri line is 'Fusha with one word swapped'.",
     "Where the MSA form admits diacritics, they are omitted (no tashkeel). Both forms are stored as a tokenizer would actually receive them from a web-scraped corpus.",
-    "Pair count: 30. Categories: pronoun, negation, future, verb, question, demonstrative, lexical, aspect."
+    "Pair count: 30. Categories: pronoun, negation, future, verb, question, demonstrative, lexical, aspect.",
+    "v1.1 (2026-05-02): added an English baseline per pair so tokenizer comparisons can disentangle 'Arabic is hard' from 'Masri is hard for an MSA-trained vocab'."
   ],
   "pairs": [
     {
       "id": "p01",
       "category": "pronoun",
+      "english": "We are students.",
       "msa": "نحن طلاب",
       "masri": "احنا طلبة",
       "gloss_en": "we are students",
@@ -24,6 +27,7 @@
     {
       "id": "p02",
       "category": "pronoun",
+      "english": "You are welcome here.",
       "msa": "أنتم مرحب بكم هنا",
       "masri": "انتو مرحب بيكم هنا",
       "gloss_en": "you (pl) are welcome here",
@@ -32,6 +36,7 @@
     {
       "id": "p03",
       "category": "negation",
+      "english": "I don't know.",
       "msa": "لا أعرف",
       "masri": "مش عارف",
       "gloss_en": "I don't know",
@@ -40,6 +45,7 @@
     {
       "id": "p04",
       "category": "negation",
+      "english": "He didn't come.",
       "msa": "لم يأتِ",
       "masri": "ما جاش",
       "gloss_en": "he didn't come",
@@ -48,6 +54,7 @@
     {
       "id": "p05",
       "category": "negation",
+      "english": "We won't go.",
       "msa": "لن نذهب",
       "masri": "مش هنروح",
       "gloss_en": "we won't go",
@@ -56,6 +63,7 @@
     {
       "id": "p06",
       "category": "negation",
+      "english": "This is not true.",
       "msa": "هذا ليس صحيحا",
       "masri": "ده مش صح",
       "gloss_en": "this is not true",
@@ -64,6 +72,7 @@
     {
       "id": "p07",
       "category": "future",
+      "english": "I will travel tomorrow.",
       "msa": "سأسافر غدا",
       "masri": "هاسافر بكرة",
       "gloss_en": "I will travel tomorrow",
@@ -72,6 +81,7 @@
     {
       "id": "p08",
       "category": "future",
+      "english": "They will arrive at noon.",
       "msa": "سيصلون عند الظهر",
       "masri": "هيوصلوا الضهر",
       "gloss_en": "they will arrive at noon",
@@ -80,6 +90,7 @@
     {
       "id": "p09",
       "category": "verb",
+      "english": "I want some water.",
       "msa": "أريد بعض الماء",
       "masri": "عايز شوية ميه",
       "gloss_en": "I want some water",
@@ -88,6 +99,7 @@
     {
       "id": "p10",
       "category": "verb",
+      "english": "What do you want?",
       "msa": "ماذا تريد؟",
       "masri": "عايز إيه؟",
       "gloss_en": "what do you want?",
@@ -96,6 +108,7 @@
     {
       "id": "p11",
       "category": "verb",
+      "english": "What are you doing now?",
       "msa": "ماذا تفعل الآن؟",
       "masri": "بتعمل إيه دلوقتي؟",
       "gloss_en": "what are you doing now?",
@@ -104,6 +117,7 @@
     {
       "id": "p12",
       "category": "verb",
+      "english": "I saw him yesterday.",
       "msa": "رأيته أمس",
       "masri": "شفته إمبارح",
       "gloss_en": "I saw him yesterday",
@@ -112,6 +126,7 @@
     {
       "id": "p13",
       "category": "verb",
+      "english": "Where are you going?",
       "msa": "إلى أين تذهب؟",
       "masri": "رايح فين؟",
       "gloss_en": "where are you going?",
@@ -120,6 +135,7 @@
     {
       "id": "p14",
       "category": "verb",
+      "english": "Come here, please.",
       "msa": "تعال هنا من فضلك",
       "masri": "تعالى هنا لو سمحت",
       "gloss_en": "come here please",
@@ -128,6 +144,7 @@
     {
       "id": "p15",
       "category": "verb",
+      "english": "Give me the book.",
       "msa": "أعطني الكتاب",
       "masri": "إديني الكتاب",
       "gloss_en": "give me the book",
@@ -136,6 +153,7 @@
     {
       "id": "p16",
       "category": "verb",
+      "english": "I haven't eaten anything today.",
       "msa": "لم آكل شيئا اليوم",
       "masri": "ما كلتش حاجة النهاردة",
       "gloss_en": "I haven't eaten anything today",
@@ -144,6 +162,7 @@
     {
       "id": "p17",
       "category": "question",
+      "english": "How did you arrive?",
       "msa": "كيف وصلت؟",
       "masri": "وصلت ازاي؟",
       "gloss_en": "how did you arrive?",
@@ -152,6 +171,7 @@
     {
       "id": "p18",
       "category": "question",
+      "english": "What is your name?",
       "msa": "ما اسمك؟",
       "masri": "اسمك إيه؟",
       "gloss_en": "what is your name?",
@@ -160,6 +180,7 @@
     {
       "id": "p19",
       "category": "question",
+      "english": "When will you return?",
       "msa": "متى ستعود؟",
       "masri": "هترجع إمتى؟",
       "gloss_en": "when will you return?",
@@ -168,6 +189,7 @@
     {
       "id": "p20",
       "category": "question",
+      "english": "Why are you late?",
       "msa": "لماذا تأخرت؟",
       "masri": "اتأخرت ليه؟",
       "gloss_en": "why are you late?",
@@ -176,6 +198,7 @@
     {
       "id": "p21",
       "category": "question",
+      "english": "Where is the house?",
       "msa": "أين البيت؟",
       "masri": "البيت فين؟",
       "gloss_en": "where is the house?",
@@ -184,6 +207,7 @@
     {
       "id": "p22",
       "category": "question",
+      "english": "Who is at the door?",
       "msa": "من على الباب؟",
       "masri": "مين على الباب؟",
       "gloss_en": "who is at the door?",
@@ -192,6 +216,7 @@
     {
       "id": "p23",
       "category": "question",
+      "english": "How much is this?",
       "msa": "كم ثمن هذا؟",
       "masri": "ده بكام؟",
       "gloss_en": "how much is this?",
@@ -200,6 +225,7 @@
     {
       "id": "p24",
       "category": "question",
+      "english": "Do you speak Arabic?",
       "msa": "هل تتكلم العربية؟",
       "masri": "بتتكلم عربي؟",
       "gloss_en": "do you speak Arabic?",
@@ -208,6 +234,7 @@
     {
       "id": "p25",
       "category": "demonstrative",
+      "english": "This man is my friend.",
       "msa": "هذا الرجل صديقي",
       "masri": "الراجل ده صاحبي",
       "gloss_en": "this man is my friend",
@@ -216,6 +243,7 @@
     {
       "id": "p26",
       "category": "demonstrative",
+      "english": "This car is new.",
       "msa": "هذه السيارة جديدة",
       "masri": "العربية دي جديدة",
       "gloss_en": "this car is new",
@@ -224,6 +252,7 @@
     {
       "id": "p27",
       "category": "demonstrative",
+      "english": "Those people are kind.",
       "msa": "هؤلاء الناس طيبون",
       "masri": "الناس دول طيبين",
       "gloss_en": "those people are kind",
@@ -232,6 +261,7 @@
     {
       "id": "p28",
       "category": "lexical",
+      "english": "I'm leaving now.",
       "msa": "أنا ذاهب الآن",
       "masri": "أنا ماشي دلوقتي",
       "gloss_en": "I'm leaving now",
@@ -240,6 +270,7 @@
     {
       "id": "p29",
       "category": "lexical",
+      "english": "I want only one cup.",
       "msa": "أريد كوبا واحدا فقط",
       "masri": "عايز كوباية واحدة بس",
       "gloss_en": "I want only one cup",
@@ -248,6 +279,7 @@
     {
       "id": "p30",
       "category": "aspect",
+      "english": "She is studying right now.",
       "msa": "هي تدرس الآن",
       "masri": "هي بتذاكر دلوقتي",
       "gloss_en": "she is studying right now",
