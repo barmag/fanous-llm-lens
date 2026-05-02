@@ -2,7 +2,7 @@
 
 **A lantern (فانوس) for looking inside small language models — mechanistic interpretability tooling with a focus on Egyptian Arabic (Masri).**
 
-> *Status: pre-alpha. Skeleton up; first experiments forthcoming.*
+> *Status: pre-alpha. Phase 0 (foundation) closed 2026-04-30; Phase 1 (probing on Arabic) in flight — first artefacts in [`notebooks/`](notebooks/).*
 
 ## Why this exists
 
@@ -61,11 +61,28 @@ Open `notebooks/00-rocm-sanity-check.ipynb` and run all cells. If torch sees the
 
 ## Quickstart
 
-```python
-import fanous_lens as fl
+The package itself is still a skeleton — there's no API surface to import yet.
+The work to date lives in `notebooks/` (see below); start there.
 
-# (API surface forthcoming — currently a skeleton.)
-```
+## Headline finding so far
+
+> **`gpt2`'s tokenizer charges a Masri or MSA speaker 2.59× more tokens than an English speaker for the same meaning. `pythia-160m`'s charges 1.99×. `mGPT` — the same BPE algorithm trained on multilingual data — closes the gap to ~1.0×.**
+
+The "tokenizer tax" is an inference-cost, latency, and context-window tax on
+every minority-language user, every request. It is not a property of Arabic;
+it is a property of which corpora the tokenizer's vocabulary was carved out
+of. Within Arabic, the same prestige-vs-colloquial dynamic recurses one level
+deeper: mGPT spends ~7.4% more tokens on Masri than on MSA. Full numbers, plot,
+and method in [`notebooks/01-tokenizer-comparison-msa-masri.ipynb`](notebooks/01-tokenizer-comparison-msa-masri.ipynb);
+beginner-friendly bilingual walk-through of the algorithm in [`notebooks/02-tokenization-101-masri.ipynb`](notebooks/02-tokenization-101-masri.ipynb).
+
+## Notebooks
+
+| # | Notebook | What it does |
+|---|---|---|
+| 00 | [`00-rocm-sanity-check`](notebooks/00-rocm-sanity-check.ipynb) | Environment contract — torch + ROCm + Transformers + TransformerLens all green on Strix Halo. |
+| 01 | [`01-tokenizer-comparison-msa-masri`](notebooks/01-tokenizer-comparison-msa-masri.ipynb) | The tokenizer-tax measurement (English / MSA / Masri × `pythia-160m` / `gpt2` / `mGPT`). Tax table, normalised bar chart, per-triple zoom. |
+| 02 | [`02-tokenization-101-masri`](notebooks/02-tokenization-101-masri.ipynb) | Bilingual (Arabic + English, RTL) walk-through of how subword tokenizers work, for a Masri-reading audience with Python but no ML background. BPE-by-hand on 6 Masri words; live BPE training on the v1 pair set; head-to-head vs `gpt2`. |
 
 ## Roadmap
 
@@ -75,9 +92,9 @@ import fanous_lens as fl
 - [x] Glossary in [`docs/glossary.md`](docs/glossary.md) (circuits, features, heads, residual stream — defined once, linked from everywhere)
 
 **Phase 1 — Probing on Arabic** *(current)*
-- [x] Tokenizer comparison: how do Pythia / GPT-2 / mGPT tokenise MSA vs Masri? *([`notebooks/01-tokenizer-comparison-msa-masri.ipynb`](notebooks/01-tokenizer-comparison-msa-masri.ipynb), 2026-05-02 — mGPT spends ~7% more tokens on Masri than MSA; English-only BPEs byte-pair-shred both registers indiscriminately)*
+- [x] Tokenizer comparison: how do Pythia / GPT-2 / mGPT tokenise English / MSA / Masri? *([`notebooks/01-tokenizer-comparison-msa-masri.ipynb`](notebooks/01-tokenizer-comparison-msa-masri.ipynb), 2026-05-02 — gpt2 charges Arabic 2.59× the English rate, pythia 1.99×, mGPT ~1.0×; within Arabic, mGPT spends ~7.4% more on Masri than MSA. Beginner companion: [`notebooks/02-tokenization-101-masri.ipynb`](notebooks/02-tokenization-101-masri.ipynb).)*
 - [ ] First probing experiment: where does dialect signal live in the residual stream?
-- [x] Reproducible prompt set (MSA + Masri pairs) checked into `eval/` *([`eval/prompts/msa-masri-pairs-v1.json`](eval/prompts/msa-masri-pairs-v1.json) — 30 hand-crafted minimal pairs across 8 categories)*
+- [x] Reproducible prompt set (English + MSA + Masri triples) checked into `eval/` *([`eval/prompts/msa-masri-pairs-v1.json`](eval/prompts/msa-masri-pairs-v1.json) — 30 hand-crafted minimal triples across 8 categories; schema v1.1 added an English baseline so tokenizer comparisons can disentangle "Arabic is hard" from "Masri is hard for an MSA-trained vocab".)*
 
 **Phase 2 — Circuit / feature work**
 - [ ] Reproduce one published circuit on a small model (e.g., IOI-style on Pythia-160m) as a baseline
