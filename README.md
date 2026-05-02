@@ -75,9 +75,9 @@ import fanous_lens as fl
 - [x] Glossary in [`docs/glossary.md`](docs/glossary.md) (circuits, features, heads, residual stream — defined once, linked from everywhere)
 
 **Phase 1 — Probing on Arabic** *(current)*
-- [ ] Tokenizer comparison: how do Pythia / GPT-2 / mGPT tokenise MSA vs Masri?
+- [x] Tokenizer comparison: how do Pythia / GPT-2 / mGPT tokenise MSA vs Masri? *([`notebooks/01-tokenizer-comparison-msa-masri.ipynb`](notebooks/01-tokenizer-comparison-msa-masri.ipynb), 2026-05-02 — mGPT spends ~7% more tokens on Masri than MSA; English-only BPEs byte-pair-shred both registers indiscriminately)*
 - [ ] First probing experiment: where does dialect signal live in the residual stream?
-- [ ] Reproducible prompt set (MSA + Masri pairs) checked into `eval/`
+- [x] Reproducible prompt set (MSA + Masri pairs) checked into `eval/` *([`eval/prompts/msa-masri-pairs-v1.json`](eval/prompts/msa-masri-pairs-v1.json) — 30 hand-crafted minimal pairs across 8 categories)*
 
 **Phase 2 — Circuit / feature work**
 - [ ] Reproduce one published circuit on a small model (e.g., IOI-style on Pythia-160m) as a baseline
