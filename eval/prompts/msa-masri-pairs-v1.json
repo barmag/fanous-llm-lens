@@ -1,0 +1,257 @@
+{
+  "schema_version": "v1",
+  "name": "msa-masri-pairs",
+  "description": "Hand-crafted minimal pairs: same meaning expressed once in Modern Standard Arabic (MSA / Fusha, الفصحى) and once in Egyptian Arabic (Masri, مصري). Designed for tokenizer + residual-stream probing experiments where the dialect register is the controlled variable.",
+  "language_codes": {
+    "msa": "ar (Modern Standard Arabic, الفصحى)",
+    "masri": "arz (Egyptian Arabic, مصري)"
+  },
+  "construction_notes": [
+    "Every pair was hand-crafted by an Egyptian Arabic native speaker. No machine translation.",
+    "Pairs aim to be natural in their register — not word-by-word transpositions. A Masri speaker should not feel a Masri line is 'Fusha with one word swapped'.",
+    "Where the MSA form admits diacritics, they are omitted (no tashkeel). Both forms are stored as a tokenizer would actually receive them from a web-scraped corpus.",
+    "Pair count: 30. Categories: pronoun, negation, future, verb, question, demonstrative, lexical, aspect."
+  ],
+  "pairs": [
+    {
+      "id": "p01",
+      "category": "pronoun",
+      "msa": "نحن طلاب",
+      "masri": "احنا طلبة",
+      "gloss_en": "we are students",
+      "notes": "1pl pronoun: نحن (MSA) → احنا (Masri). Plural of 'student' shifts طلاب → طلبة."
+    },
+    {
+      "id": "p02",
+      "category": "pronoun",
+      "msa": "أنتم مرحب بكم هنا",
+      "masri": "انتو مرحب بيكم هنا",
+      "gloss_en": "you (pl) are welcome here",
+      "notes": "2pl pronoun أنتم → انتو; preposition+suffix بكم → بيكم."
+    },
+    {
+      "id": "p03",
+      "category": "negation",
+      "msa": "لا أعرف",
+      "masri": "مش عارف",
+      "gloss_en": "I don't know",
+      "notes": "Present-tense negation: MSA preverbal لا + imperfect → Masri مش + active participle. Different syntactic strategy entirely."
+    },
+    {
+      "id": "p04",
+      "category": "negation",
+      "msa": "لم يأتِ",
+      "masri": "ما جاش",
+      "gloss_en": "he didn't come",
+      "notes": "Past negation: MSA لم + jussive → Masri circumfix ما...ش on the perfect. Verb root also differs (أتى → جا)."
+    },
+    {
+      "id": "p05",
+      "category": "negation",
+      "msa": "لن نذهب",
+      "masri": "مش هنروح",
+      "gloss_en": "we won't go",
+      "notes": "Future negation: MSA لن + subjunctive → Masri مش + future-prefix هـ + imperfect. Verb ذهب → راح."
+    },
+    {
+      "id": "p06",
+      "category": "negation",
+      "msa": "هذا ليس صحيحا",
+      "masri": "ده مش صح",
+      "gloss_en": "this is not true",
+      "notes": "Nominal negation: MSA defective verb ليس → Masri invariant مش. Demonstrative هذا → ده."
+    },
+    {
+      "id": "p07",
+      "category": "future",
+      "msa": "سأسافر غدا",
+      "masri": "هاسافر بكرة",
+      "gloss_en": "I will travel tomorrow",
+      "notes": "Future marker: MSA prefix سـ → Masri prefix هـ/حـ. Time adverb غدا → بكرة."
+    },
+    {
+      "id": "p08",
+      "category": "future",
+      "msa": "سيصلون عند الظهر",
+      "masri": "هيوصلوا الضهر",
+      "gloss_en": "they will arrive at noon",
+      "notes": "3pl future. Phonological shift ظ → ض in الظهر → الضهر is characteristic of Cairene Masri."
+    },
+    {
+      "id": "p09",
+      "category": "verb",
+      "msa": "أريد بعض الماء",
+      "masri": "عايز شوية ميه",
+      "gloss_en": "I want some water",
+      "notes": "Quintessential lexical split: أريد (verb) → عايز (active participle). 'water' الماء → ميه (different orthography for the same etymon)."
+    },
+    {
+      "id": "p10",
+      "category": "verb",
+      "msa": "ماذا تريد؟",
+      "masri": "عايز إيه؟",
+      "gloss_en": "what do you want?",
+      "notes": "Wh-fronting (MSA) vs wh-in-situ (Masri). ماذا → إيه, postposed."
+    },
+    {
+      "id": "p11",
+      "category": "verb",
+      "msa": "ماذا تفعل الآن؟",
+      "masri": "بتعمل إيه دلوقتي؟",
+      "gloss_en": "what are you doing now?",
+      "notes": "Verb فعل → عمل; aspectual prefix بـ marks habitual/progressive in Masri (no MSA equivalent)."
+    },
+    {
+      "id": "p12",
+      "category": "verb",
+      "msa": "رأيته أمس",
+      "masri": "شفته إمبارح",
+      "gloss_en": "I saw him yesterday",
+      "notes": "Verb رأى → شاف (etymologically distinct roots). Adverb أمس → إمبارح."
+    },
+    {
+      "id": "p13",
+      "category": "verb",
+      "msa": "إلى أين تذهب؟",
+      "masri": "رايح فين؟",
+      "gloss_en": "where are you going?",
+      "notes": "MSA preposition+wh إلى أين → bare wh فين in Masri. Verb ذهب → راح (active participle رايح)."
+    },
+    {
+      "id": "p14",
+      "category": "verb",
+      "msa": "تعال هنا من فضلك",
+      "masri": "تعالى هنا لو سمحت",
+      "gloss_en": "come here please",
+      "notes": "Imperative form differs slightly (تعال → تعالى); politeness formula من فضلك → لو سمحت ('if you've permitted')."
+    },
+    {
+      "id": "p15",
+      "category": "verb",
+      "msa": "أعطني الكتاب",
+      "masri": "إديني الكتاب",
+      "gloss_en": "give me the book",
+      "notes": "Verb أعطى → إدّى — dialectal lexical replacement. Object suffix structure identical."
+    },
+    {
+      "id": "p16",
+      "category": "verb",
+      "msa": "لم آكل شيئا اليوم",
+      "masri": "ما كلتش حاجة النهاردة",
+      "gloss_en": "I haven't eaten anything today",
+      "notes": "Compound differences: negation strategy (p04), 'thing' شيء → حاجة, 'today' اليوم → النهاردة (an archetypal Masri lexeme)."
+    },
+    {
+      "id": "p17",
+      "category": "question",
+      "msa": "كيف وصلت؟",
+      "masri": "وصلت ازاي؟",
+      "gloss_en": "how did you arrive?",
+      "notes": "Wh-particle كيف → ازاي; in-situ position."
+    },
+    {
+      "id": "p18",
+      "category": "question",
+      "msa": "ما اسمك؟",
+      "masri": "اسمك إيه؟",
+      "gloss_en": "what is your name?",
+      "notes": "ما → إيه; postposed in Masri. Both are short and high-frequency — good probe for early-layer divergence."
+    },
+    {
+      "id": "p19",
+      "category": "question",
+      "msa": "متى ستعود؟",
+      "masri": "هترجع إمتى؟",
+      "gloss_en": "when will you return?",
+      "notes": "Wh متى → إمتى; future سـ → هـ; verb عاد → رجع."
+    },
+    {
+      "id": "p20",
+      "category": "question",
+      "msa": "لماذا تأخرت؟",
+      "masri": "اتأخرت ليه؟",
+      "gloss_en": "why are you late?",
+      "notes": "Wh لماذا → ليه; verb prefix تـ → اتـ (Masri Form V/VII reanalysis)."
+    },
+    {
+      "id": "p21",
+      "category": "question",
+      "msa": "أين البيت؟",
+      "masri": "البيت فين؟",
+      "gloss_en": "where is the house?",
+      "notes": "Wh أين → فين; in-situ. Verbless copula identical."
+    },
+    {
+      "id": "p22",
+      "category": "question",
+      "msa": "من على الباب؟",
+      "masri": "مين على الباب؟",
+      "gloss_en": "who is at the door?",
+      "notes": "Wh من → مين. Single-letter difference but on a high-frequency content word — interesting probe."
+    },
+    {
+      "id": "p23",
+      "category": "question",
+      "msa": "كم ثمن هذا؟",
+      "masri": "ده بكام؟",
+      "gloss_en": "how much is this?",
+      "notes": "Wh كم → كام (with cliticised preposition بـ); MSA needs lexical ثمن ('price'), Masri folds price into the preposition."
+    },
+    {
+      "id": "p24",
+      "category": "question",
+      "msa": "هل تتكلم العربية؟",
+      "masri": "بتتكلم عربي؟",
+      "gloss_en": "do you speak Arabic?",
+      "notes": "Yes/no marker هل dropped entirely in Masri (intonation does the work). Aspectual بـ; bare العربية → عربي."
+    },
+    {
+      "id": "p25",
+      "category": "demonstrative",
+      "msa": "هذا الرجل صديقي",
+      "masri": "الراجل ده صاحبي",
+      "gloss_en": "this man is my friend",
+      "notes": "Demonstrative هذا → ده, postposed (MSA pre-, Masri post-nominal). Lexical: رجل → راجل (vowel insertion), صديق → صاحب."
+    },
+    {
+      "id": "p26",
+      "category": "demonstrative",
+      "msa": "هذه السيارة جديدة",
+      "masri": "العربية دي جديدة",
+      "gloss_en": "this car is new",
+      "notes": "Feminine demonstrative هذه → دي. Lexical سيارة → عربية ('Arab one'; same etymon, different specialisation)."
+    },
+    {
+      "id": "p27",
+      "category": "demonstrative",
+      "msa": "هؤلاء الناس طيبون",
+      "masri": "الناس دول طيبين",
+      "gloss_en": "those people are kind",
+      "notes": "Plural demonstrative هؤلاء → دول. Plural adjective sound-masculine -ون → -ين in Masri."
+    },
+    {
+      "id": "p28",
+      "category": "lexical",
+      "msa": "أنا ذاهب الآن",
+      "masri": "أنا ماشي دلوقتي",
+      "gloss_en": "I'm leaving now",
+      "notes": "'going' ذاهب → ماشي ('walking' generalised); 'now' الآن → دلوقتي (lit. 'this-the-time')."
+    },
+    {
+      "id": "p29",
+      "category": "lexical",
+      "msa": "أريد كوبا واحدا فقط",
+      "masri": "عايز كوباية واحدة بس",
+      "gloss_en": "I want only one cup",
+      "notes": "'cup' كوب → كوباية (feminine extension); 'only' فقط → بس (one of the most frequent Masri-marker words)."
+    },
+    {
+      "id": "p30",
+      "category": "aspect",
+      "msa": "هي تدرس الآن",
+      "masri": "هي بتذاكر دلوقتي",
+      "gloss_en": "she is studying right now",
+      "notes": "Aspectual prefix بـ on the imperfect = progressive in Masri; MSA bare imperfect is aspectually underspecified. Verb درس → ذاكر."
+    }
+  ]
+}
