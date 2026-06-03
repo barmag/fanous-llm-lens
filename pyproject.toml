@@ -38,6 +38,8 @@ dependencies = [
     "pydantic>=2",
     "tqdm",
     "rich",
+    "networkx>=3.6.1",
+    "scikit-learn>=1.9.0",
 ]
 
 [project.optional-dependencies]
