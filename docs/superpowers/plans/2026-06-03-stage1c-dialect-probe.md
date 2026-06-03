@@ -165,7 +165,7 @@ This task authors the `.ipynb` as raw JSON with the Write tool. All `outputs` ar
 
 - [ ] **Step 1: Write the reference notebook**
 
-Write `notebooks/education/stage1_c_subword_reference.ipynb` as a notebook JSON (`nbformat` 4, `nbformat_minor` 5) whose `cells` array contains the following, in order. Each code cell's `source` is the literal text shown; preserve the `ء-ي` unicode escapes verbatim (repo convention — do not substitute literal Arabic in the cleaning regex).
+Write `notebooks/education/stage1_c_subword_reference.ipynb` as a notebook JSON (`nbformat` 4, `nbformat_minor` 5) whose `cells` array contains the following, in order. Each code cell's `source` is the literal text shown. **Critical convention:** the Arabic range in the cleaning regex MUST be written as the `\u0621-\u064A` unicode escapes (exactly as Stage 1b does) — do NOT substitute literal Arabic characters. Arabic words inside markdown and the example-tokenisation list are real Arabic characters; only the regex range uses escapes.
 
 **Cell 0 — markdown (badge, unchanged):**
 
@@ -243,7 +243,7 @@ def clean_msa(stream, max_chars=500000):
     text = ""
     for article in stream:
         cleaned = re.sub(r'\s+', ' ', article['text'])
-        cleaned = re.sub(r'[^\sء-ي]', '', cleaned)
+        cleaned = re.sub(r'[^\s\u0621-\u064A]', '', cleaned)
         text += cleaned + " "
         if len(text) >= max_chars:
             break
@@ -254,7 +254,7 @@ def clean_masri(tweets, max_chars=500000):
     for t in tweets:
         cleaned = re.sub(r'\s+', ' ', t['text'])
         cleaned = re.sub(r'[a-zA-Z0-9_@]+', '', cleaned)
-        cleaned = re.sub(r'[^\sء-ي]', '', cleaned)
+        cleaned = re.sub(r'[^\s\u0621-\u064A]', '', cleaned)
         text += cleaned + " "
         if len(text) >= max_chars:
             break
@@ -526,7 +526,7 @@ Write `notebooks/education/stage1_c_subword_experiment.ipynb` as notebook JSON w
 #   1. load_dataset("wikimedia/wikipedia", "20231101.ar", streaming=True) for MSA and
 #      load_dataset("amgadhasan/arabic_tweets_dialects") filtered to dialect == "EG".
 #   2. Clean each: collapse whitespace, strip non-Arabic with the regex range
-#      [^\sء-ي]; build msa_text and masri_text (~500k chars each).
+#      [^\s\u0621-\u064A]; build msa_text and masri_text (~500k chars each).
 #   3. Train a BPE tokenizer (tokenizers.Tokenizer + BpeTrainer, vocab_size=3000,
 #      Whitespace pre-tokenizer) on [msa_text, masri_text] combined.
 #   4. Produce msa_ids, masri_ids (tokenizer.encode(...).ids) and
