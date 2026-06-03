@@ -79,3 +79,4 @@ logs/
 # Local config
 .env
 .env.local
+.superpowers/
