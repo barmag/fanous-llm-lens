@@ -88,9 +88,10 @@ def test_figure_has_two_panels_with_accuracy():
     ns = _load_analysis_cell()
     fig = ns["fig"]
     assert isinstance(fig, go.Figure)
-    # make_subplots(cols=2) creates a second x-axis
+    # make_subplots(cols=3): PCA | outline | strip -> three x-axes
     assert fig.layout.xaxis2 is not None
-    # left panel: PCA points (markers); right panel: probe outline curves (lines)
+    assert fig.layout.xaxis3 is not None
+    # PCA points + strip dots are markers; the outline distribution is lines
     scatters = [t for t in fig.data if t.type == "scatter"]
     assert any(t.mode and "markers" in t.mode for t in scatters)
     assert any(t.mode == "lines" for t in scatters)
