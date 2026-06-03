@@ -57,29 +57,10 @@ def mock_stage1_b(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 def mock_stage1_c(ctx):
-    # Mock plotly express scatter_3d to return a mock figure supporting method chaining
-    class MockFig:
-        def update_traces(self, *args, **kwargs): return self
-        def update_layout(self, *args, **kwargs): return self
-        def show(self): print("  [Mock] plotly.express.scatter_3d show() called.")
-        
-    import plotly.express as px
-    px.scatter_3d = lambda *args, **kwargs: MockFig()
-    
-    # Mock transformers AutoModel
-    import torch
-    import transformers
-    
-    class MockWTE:
-        def __init__(self):
-            # Create dummy tensor representing embeddings
-            self.weight = type('MockWeight', (), {'data': torch.randn(100000, 768)})()
-            
-    class MockModel:
-        def __init__(self):
-            self.wte = MockWTE()
-            
-    transformers.AutoModel.from_pretrained = lambda *args, **kwargs: MockModel()
+    # New Stage 1c trains a tiny zero-layer model locally and renders with
+    # plotly graph_objects; only the figure display needs mocking.
+    import plotly.graph_objects as go
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 # Run checks
 all_passed = True
