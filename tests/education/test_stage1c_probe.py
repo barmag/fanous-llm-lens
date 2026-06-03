@@ -90,9 +90,10 @@ def test_figure_has_two_panels_with_accuracy():
     assert isinstance(fig, go.Figure)
     # make_subplots(cols=2) creates a second x-axis
     assert fig.layout.xaxis2 is not None
-    # both a PCA scatter and a probe histogram are drawn
-    assert any(t.type == "scatter" for t in fig.data)
-    assert any(t.type == "histogram" for t in fig.data)
+    # left panel: PCA points (markers); right panel: probe outline curves (lines)
+    scatters = [t for t in fig.data if t.type == "scatter"]
+    assert any(t.mode and "markers" in t.mode for t in scatters)
+    assert any(t.mode == "lines" for t in scatters)
     # the probe accuracy is surfaced somewhere in the figure text
     ann_texts = [a.text or "" for a in fig.layout.annotations]
     assert any("acc" in t.lower() for t in ann_texts)
