@@ -86,17 +86,23 @@ def make_induction_data(batch, seq_len, d_vocab, seed=DEFAULT_SEED):
     return torch.cat([first, first], dim=1)
 
 
-def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED):
-    """Full-batch train on a [N, n_ctx] long tensor. Returns per-epoch loss list."""
+def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED, log_every=0):
+    """Full-batch train on a [N, n_ctx] long tensor. Returns per-epoch loss list.
+
+    If log_every > 0, print progress every `log_every` epochs (and on the last),
+    so long runs don't sit silent.
+    """
     torch.manual_seed(seed)
     batches = batches.to(model.cfg.device)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     losses = []
     model.train()
-    for _ in range(n_epochs):
+    for e in range(n_epochs):
         opt.zero_grad()
         loss = model(batches, return_type="loss")
         loss.backward()
         opt.step()
         losses.append(float(loss.detach()))
+        if log_every and ((e + 1) % log_every == 0 or (e + 1) == n_epochs):
+            print(f"  epoch {e + 1:>4}/{n_epochs}  loss={losses[-1]:.3f}")
     return losses
