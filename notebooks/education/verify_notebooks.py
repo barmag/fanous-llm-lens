@@ -1,66 +1,80 @@
 import json
-import sys
 import os
+import sys
+
 
 def run_notebook(filepath, mock_setup=None):
-    print(f"\n==========================================")
+    edu_dir = os.path.dirname(os.path.abspath(__file__))
+    if edu_dir not in sys.path:
+        sys.path.insert(0, edu_dir)
+
+    print("\n==========================================")
     print(f"Testing Notebook: {os.path.basename(filepath)}")
-    print(f"==========================================")
-    with open(filepath, 'r', encoding='utf-8') as f:
+    print("==========================================")
+    with open(filepath, encoding="utf-8") as f:
         nb = json.load(f)
-    
+
     # Extract code cells
-    code_cells = [cell for cell in nb['cells'] if cell['cell_type'] == 'code']
-    
+    code_cells = [cell for cell in nb["cells"] if cell["cell_type"] == "code"]
+
     # Build complete python source code
     source_lines = []
     for cell in code_cells:
         # Join lines of the cell
-        cell_source = "".join(cell['source'])
+        cell_source = "".join(cell["source"])
         # Comment out colab specific pip installs to avoid running them locally
         # and insert 'pass' to maintain valid python indentation block
         cell_source = cell_source.replace("!pip install", "pass # !pip install")
+        cell_source = cell_source.replace("!wget", "pass # !wget")
         source_lines.append(cell_source)
-        
+
     full_source = "\n\n# --- NEW CELL ---\n\n".join(source_lines)
-    
+
     # Global context for exec
     global_context = {}
-    
+
     # Apply mocks if provided
     if mock_setup:
         mock_setup(global_context)
-        
+
     try:
         # Execute the python script
         exec(full_source, global_context)
         print("Result: SUCCESS")
         return True
-    except Exception as e:
+    except Exception:
         import traceback
+
         print("Result: FAILED", file=sys.stderr)
         traceback.print_exc()
         return False
+
 
 # Mock setups to make tests run instantly
 def mock_stage1_a(ctx):
     # Mock clean_and_collect to only fetch 2000 chars instead of 100000
     # Also mock epochs to 1 for super fast training
-    ctx['sys'] = sys
+    ctx["sys"] = sys
     # Add a mock class/function wrapper
     import plotly.graph_objects as go
+
     # Mock Figure.show to be a no-op
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
+
 def mock_stage1_b(ctx):
     import plotly.graph_objects as go
+
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
 
 def mock_stage1_c(ctx):
     # New Stage 1c trains a tiny zero-layer model locally and renders with
     # plotly graph_objects; only the figure display needs mocking.
     import plotly.graph_objects as go
+
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
 
 # Run checks
 all_passed = True
