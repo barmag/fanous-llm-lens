@@ -13,8 +13,20 @@ DEFAULT_SEED = 42
 
 
 def device() -> str:
-    """Generic device pick so identical code runs on Colab (CUDA) and Strix Halo."""
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    """Pick the GPU only if it can actually run a kernel, else CPU.
+
+    Colab's CUDA passes; some ROCm builds (e.g. Strix Halo gfx1151 on the
+    official wheels) report a GPU as "available" but have no runnable kernel for
+    it, so a plain is_available() check would send work to a device that then
+    crashes. We probe with a tiny op and fall back to CPU on failure.
+    """
+    if torch.cuda.is_available():
+        try:
+            torch.ones(1, device="cuda").add_(1)
+            return "cuda"
+        except Exception:
+            return "cpu"
+    return "cpu"
 
 
 def make_tiny_model(
