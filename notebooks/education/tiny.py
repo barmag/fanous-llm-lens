@@ -1,6 +1,6 @@
 """tiny.py — shared helper for the Stage 2 architecture-ladder notebooks.
 
-Self-contained: depends only on torch, transformer_lens, numpy. Delivered to
+Self-contained: depends only on torch and transformer_lens. Delivered to
 Colab via wget of this single file; imported locally as a sibling module.
 """
 

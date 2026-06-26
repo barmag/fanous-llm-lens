@@ -4,9 +4,6 @@ import sys
 
 
 def run_notebook(filepath, mock_setup=None):
-    import os
-    import sys
-
     edu_dir = os.path.dirname(os.path.abspath(__file__))
     if edu_dir not in sys.path:
         sys.path.insert(0, edu_dir)
