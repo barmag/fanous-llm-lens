@@ -44,6 +44,33 @@ def test_make_natural_batches_chunks_and_drops_remainder():
     assert tuple(b.shape) == (2, 16)  # 35 // 16 == 2, remainder dropped
 
 
+class _FakeTokenizer:
+    """Minimal stand-in: maps each non-space char to a sparse, non-contiguous id."""
+
+    def encode(self, text, add_special_tokens=False):  # noqa: ARG002 (matches real signature)
+        return [ord(c) for c in text if not c.isspace()]
+
+    def decode(self, ids):
+        return "".join(chr(i) for i in ids)
+
+
+def test_make_compact_encoder_remaps_to_dense_small_vocab():
+    tok = _FakeTokenizer()
+    encode, corpus_ids, id_to_str, d_vocab = tiny.make_compact_encoder(tok, ["abc", "bcd"])
+    # 4 distinct chars (a,b,c,d) + [UNK] -> d_vocab 5, dense ids 0..4
+    assert d_vocab == 5
+    flat = [i for seq in corpus_ids for i in seq]
+    assert min(flat) >= 1 and max(flat) < d_vocab
+    assert id_to_str[0] == "[UNK]"
+    assert id_to_str[encode("a")[0]] == "a"  # round-trips a seen char
+
+
+def test_make_compact_encoder_maps_unseen_to_unk():
+    tok = _FakeTokenizer()
+    encode, *_ = tiny.make_compact_encoder(tok, ["abc"])
+    assert encode("z") == [0]  # 'z' never appeared in the corpus -> [UNK]
+
+
 def test_train_reduces_loss():
     m = tiny.make_tiny_model(n_layers=1, n_heads=2, d_vocab=40, n_ctx=16, d_model=32)
     batches = tiny.make_induction_data(batch=8, seq_len=16, d_vocab=40, seed=0)

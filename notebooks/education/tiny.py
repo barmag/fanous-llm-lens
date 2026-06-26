@@ -38,6 +38,32 @@ def make_tiny_model(
     return HookedTransformer(cfg)
 
 
+def make_compact_encoder(tokenizer, texts):
+    """Use a pretrained Arabic tokenizer but keep the vocab small enough to train.
+
+    A from-scratch tiny model can't carry a 100k-row embedding, so we tokenize
+    `texts`, keep only the subword ids that actually appear, and remap them to a
+    compact 0..K space (id 0 reserved for [UNK]). Returns:
+      encode(text) -> list[int]   # maps any text into the compact id space
+      corpus_ids   -> list[list[int]]  # one compact id list per input text
+      id_to_str    -> dict[int, str]   # compact id -> readable token (for plots)
+      d_vocab      -> int              # size of the compact vocab (== K + 1)
+    """
+    raw = [tokenizer.encode(t, add_special_tokens=False) for t in texts]
+    used = sorted({i for seq in raw for i in seq})
+    remap = {old: j + 1 for j, old in enumerate(used)}  # 0 reserved for [UNK]
+    id_to_str = {0: "[UNK]"}
+    for old, j in remap.items():
+        id_to_str[j] = tokenizer.decode([old]).strip() or "▁"
+    corpus_ids = [[remap[i] for i in seq] for seq in raw]
+    d_vocab = len(used) + 1
+
+    def encode(text):
+        return [remap.get(i, 0) for i in tokenizer.encode(text, add_special_tokens=False)]
+
+    return encode, corpus_ids, id_to_str, d_vocab
+
+
 def make_natural_batches(token_ids, n_ctx, batch_size=None):
     """Chunk a 1D stream of ids into a [N, n_ctx] long tensor (drops the remainder)."""
     ids = torch.as_tensor(token_ids, dtype=torch.long)

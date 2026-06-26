@@ -77,13 +77,12 @@ def mock_stage1_c(ctx):
 
 
 def mock_stage2_a(ctx):
-    # Stage 2a fetches a little Arabic text, trains a tiny 1-layer model, and
-    # renders attention heatmaps. Shrink the data/vocab/training knobs so the
-    # notebook runs in seconds, and no-op the plotly display.
+    # Stage 2a fetches a little Arabic text, builds a compact mGPT vocab, trains
+    # a tiny 1-layer model, and renders attention heatmaps. Shrink the data and
+    # training knobs so the notebook runs fast, and no-op the plotly display.
     import plotly.graph_objects as go
 
     ctx["MAX_CHARS"] = 15000
-    ctx["BPE_VOCAB"] = 300
     ctx["N_CTX"] = 16
     ctx["N_EPOCHS"] = 2
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
