@@ -76,7 +76,24 @@ def mock_stage1_c(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
+def mock_stage2_a(ctx):
+    # Stage 2a fetches a little Arabic text, trains a tiny 1-layer model, and
+    # renders attention heatmaps. Shrink the data/vocab/training knobs so the
+    # notebook runs in seconds, and no-op the plotly display.
+    import plotly.graph_objects as go
+
+    ctx["MAX_CHARS"] = 15000
+    ctx["BPE_VOCAB"] = 300
+    ctx["N_CTX"] = 16
+    ctx["N_EPOCHS"] = 2
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
 # Run checks
+# Resolve notebook paths relative to this file, not the caller's cwd, so the
+# existence checks below never silently skip (a vacuous "SUCCESS") when the
+# harness is invoked from the repo root.
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 all_passed = True
 stage_arg = sys.argv[1].lower() if len(sys.argv) > 1 else "all"
 
@@ -98,6 +115,13 @@ if stage_arg in ("b", "all"):
 if stage_arg in ("c", "all"):
     if os.path.exists("stage1_c_subword_reference.ipynb"):
         success = run_notebook("stage1_c_subword_reference.ipynb", mock_stage1_c)
+        if not success:
+            all_passed = False
+
+# Stage 2a
+if stage_arg in ("2a", "all"):
+    if os.path.exists("stage2_a_single_block_reference.ipynb"):
+        success = run_notebook("stage2_a_single_block_reference.ipynb", mock_stage2_a)
         if not success:
             all_passed = False
 
