@@ -2,10 +2,11 @@
 
 **Date:** 2026-06-26
 **Status:** Design — awaiting implementation
-**Scope:** Three new notebook pairs under `notebooks/education/`
-(`stage2_a_single_block`, `stage2_b_multi_head`, `stage2_c_depth_induction`),
-each `_reference` (complete) + `_experiment` (scaffolded with placeholders); a new
-shared helper `notebooks/education/tiny.py`; and tests under `tests/education/`.
+**Scope:** Four new notebook pairs under `notebooks/education/`
+(`stage2_a_single_block`, `stage2_b_multi_head`, `stage2_c_depth_induction`,
+`stage2_d_mlp`), each `_reference` (complete) + `_experiment` (scaffolded with
+placeholders); a new shared helper `notebooks/education/tiny.py`; and tests under
+`tests/education/`.
 
 ## Problem / motivation
 
@@ -35,11 +36,18 @@ capability it unlocks on Arabic data:
 | 2a | one attention block, one head | a token can **look at other tokens** | the head learns to point; prediction becomes context-aware |
 | 2b | multiple heads | **several relations at once**, in parallel | different heads specialise on different Arabic relations |
 | 2c | a second layer | **composition → induction** | depth lets one head use another head's output |
+| 2d | an MLP | **per-token computation** | a token can transform itself; no information moves between positions |
+
+Rungs **2a–2c are attention-only**, which is faithful to the 2021 framework (Elhage et
+al. analyse attention-only transformers and explicitly set MLPs aside; the induction-head
+capstone lives in a 2-layer attention-only model). Rung **2d then turns the MLP on** to
+complete the transformer block, taught as its own variable rather than folded into the
+attention rungs.
 
 The arc is purely **architectural**: embeddings → +block (context) → +heads (parallel
-relations) → +depth (composition). Data-effect stories (e.g. BPE fracture / dialect tax)
-are deliberately **out of scope** here — they are taught elsewhere and would smuggle a
-second variable into an architecture lesson.
+relations) → +depth (composition) → +MLP (per-token computation). Data-effect stories
+(e.g. BPE fracture / dialect tax) are deliberately **out of scope** here — they are
+taught elsewhere and would smuggle a second variable into an architecture lesson.
 
 ## Approach
 
@@ -56,9 +64,11 @@ rungs is `n_layers` / `n_heads`. At rung 2a, one section computes the QK and OV 
 **by hand** (raw matmuls on real Masri tokens) and shows the result equals what the cache
 holds — "the heatmap you see *is* this matrix." Math is made visible once, then trusted.
 
-**Attention-only (`attn_only=True`) across the whole ladder.** MLPs are out of scope for
-this arc; including them would muddy "what does a *block* add." This also matches the
-2021 framework's attention-only analysis and keeps the toy models tiny.
+**Attention-only (`attn_only=True`) for the attention ladder (2a–2c).** Folding the MLP
+into those rungs would muddy "what does attention add"; staying attention-only also
+matches the 2021 framework's analysis and keeps the toy models tiny. The MLP is then
+introduced as its own final rung (2d, `attn_only=False`) so the curriculum teaches the
+complete transformer block without conflating two variables.
 
 ### Shared helper: `notebooks/education/tiny.py`
 
@@ -66,9 +76,9 @@ A single self-contained module (depends only on pip-installable packages: `torch
 `transformer_lens`, `numpy`). **Not** part of the `fanous_lens` package — nothing to
 install for it to resolve.
 
-- `make_tiny_model(n_layers, n_heads, d_model, ...) -> HookedTransformer` — wraps a
-  `HookedTransformerConfig` with tiny attention-only defaults; rungs differ only by
-  `n_layers` / `n_heads`.
+- `make_tiny_model(n_layers, n_heads, d_model, attn_only=True, ...) -> HookedTransformer`
+  — wraps a `HookedTransformerConfig` with tiny defaults; rungs 2a–2c differ only by
+  `n_layers` / `n_heads` (attention-only), and 2d sets `attn_only=False` to add the MLP.
 - `train(model, token_ids, ...) -> losses` — fixed, **seeded, deterministic** training
   loop that converges in <10 min on a Colab T4 / iGPU. Returns loss history (used
   internally; training curves are not a headline visual).
@@ -142,8 +152,21 @@ before/after next-token top-k · weight/vector geometry** (training curves de-pr
   use another head's output.
 - **Then natural Masri** with the same trained model: does the learned circuit fire on
   real text, or only on the clean synthetic task? Honest report either way.
-- Closer: *depth unlocks composition* — the capstone of the ladder. No fracture / data
-  story.
+- Closer: *depth unlocks composition* — the capstone of the attention ladder. No
+  fracture / data story.
+
+### 2d — + MLP *(capability: per-token computation)*
+
+- Take the 2-layer model and turn the MLP on (`attn_only=False`); train with the same
+  recipe.
+- Show the MLP does **per-position computation that moves no information between tokens** —
+  contrast with attention, which is purely about moving information. Visuals: before/after
+  next-token top-k vs the attention-only 2c model; the MLP's effect on a single token's
+  residual (it transforms in place); per-token activations.
+- Honest closer: this is where the *clean* circuit story of the 2021 framework stops —
+  MLP-as-circuits is genuinely harder, and this is the natural **bridge to later
+  feature / SAE work**. Completes "what a transformer block is made of" rather than
+  ending a dead end.
 
 ### Experiment notebooks
 
@@ -179,12 +202,15 @@ placeholders, then merge.
 2. `stage2_a_single_block` (reference → experiment)
 3. `stage2_b_multi_head` (reference → experiment)
 4. `stage2_c_depth_induction` (reference → experiment)
+5. `stage2_d_mlp` (reference → experiment)
 
 ## Out of scope
 
-- MLPs / non-attention components (attention-only ladder by design).
 - BPE fracture / dialect-tax / any data-effect story (architecture lesson only; taught
   elsewhere).
+- MLP *circuit analysis* (2d shows what the MLP does and contrasts it with attention, but
+  reverse-engineering MLP features is deferred to later feature/SAE work — the 2021
+  framework's clean story is attention-only).
 - Pretrained models and ablation-based reveals (each rung is trained from scratch).
 - Activation steering (the alternative fork that was not taken).
 - The `fanous_lens` package API surface — `tiny.py` stays a standalone notebook helper
