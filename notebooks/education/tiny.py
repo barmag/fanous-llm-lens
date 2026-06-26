@@ -13,8 +13,20 @@ DEFAULT_SEED = 42
 
 
 def device() -> str:
-    """Generic device pick so identical code runs on Colab (CUDA) and Strix Halo."""
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    """Pick the GPU only if it can actually run a kernel, else CPU.
+
+    Colab's CUDA passes; some ROCm builds (e.g. Strix Halo gfx1151 on the
+    official wheels) report a GPU as "available" but have no runnable kernel for
+    it, so a plain is_available() check would send work to a device that then
+    crashes. We probe with a tiny op and fall back to CPU on failure.
+    """
+    if torch.cuda.is_available():
+        try:
+            torch.ones(1, device="cuda").add_(1)
+            return "cuda"
+        except Exception:
+            return "cpu"
+    return "cpu"
 
 
 def make_tiny_model(
@@ -36,6 +48,32 @@ def make_tiny_model(
         device=device(),
     )
     return HookedTransformer(cfg)
+
+
+def make_compact_encoder(tokenizer, texts):
+    """Use a pretrained Arabic tokenizer but keep the vocab small enough to train.
+
+    A from-scratch tiny model can't carry a 100k-row embedding, so we tokenize
+    `texts`, keep only the subword ids that actually appear, and remap them to a
+    compact 0..K space (id 0 reserved for [UNK]). Returns:
+      encode(text) -> list[int]   # maps any text into the compact id space
+      corpus_ids   -> list[list[int]]  # one compact id list per input text
+      id_to_str    -> dict[int, str]   # compact id -> readable token (for plots)
+      d_vocab      -> int              # size of the compact vocab (== K + 1)
+    """
+    raw = [tokenizer.encode(t, add_special_tokens=False) for t in texts]
+    used = sorted({i for seq in raw for i in seq})
+    remap = {old: j + 1 for j, old in enumerate(used)}  # 0 reserved for [UNK]
+    id_to_str = {0: "[UNK]"}
+    for old, j in remap.items():
+        id_to_str[j] = tokenizer.decode([old]).strip() or "▁"
+    corpus_ids = [[remap[i] for i in seq] for seq in raw]
+    d_vocab = len(used) + 1
+
+    def encode(text):
+        return [remap.get(i, 0) for i in tokenizer.encode(text, add_special_tokens=False)]
+
+    return encode, corpus_ids, id_to_str, d_vocab
 
 
 def make_natural_batches(token_ids, n_ctx, batch_size=None):
@@ -60,17 +98,23 @@ def make_induction_data(batch, seq_len, d_vocab, seed=DEFAULT_SEED):
     return torch.cat([first, first], dim=1)
 
 
-def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED):
-    """Full-batch train on a [N, n_ctx] long tensor. Returns per-epoch loss list."""
+def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED, log_every=0):
+    """Full-batch train on a [N, n_ctx] long tensor. Returns per-epoch loss list.
+
+    If log_every > 0, print progress every `log_every` epochs (and on the last),
+    so long runs don't sit silent.
+    """
     torch.manual_seed(seed)
     batches = batches.to(model.cfg.device)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     losses = []
     model.train()
-    for _ in range(n_epochs):
+    for e in range(n_epochs):
         opt.zero_grad()
         loss = model(batches, return_type="loss")
         loss.backward()
         opt.step()
         losses.append(float(loss.detach()))
+        if log_every and ((e + 1) % log_every == 0 or (e + 1) == n_epochs):
+            print(f"  epoch {e + 1:>4}/{n_epochs}  loss={losses[-1]:.3f}")
     return losses

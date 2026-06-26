@@ -57,6 +57,13 @@ train = [
     "evaluate",
 ]
 
+# Static-image export (plotly -> PNG) for committed notebook assets. Separate
+# from `dev` because kaleido pulls a headless browser; only needed to
+# regenerate images under notebooks/**/images/.
+assets = [
+    "kaleido",
+]
+
 # PyTorch backends — pick EXACTLY ONE per machine (they conflict):
 #   uv sync --extra rocm --extra dev   # AMD Strix Halo (gfx1151)
 #   uv sync --extra cpu  --extra dev   # CPU / CI / non-AMD contributors
@@ -132,7 +139,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"notebooks/**/*.py" = ["E402", "F401"]  # notebooks have looser rules
+"notebooks/**/*.py" = ["E402", "F401", "C408"]  # notebooks: looser rules; plotly uses dict()
 "__init__.py" = ["F401"]                # re-exports
 
 # ───────────────────── basedpyright ─────────────────────
