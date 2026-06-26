@@ -57,8 +57,46 @@ train = [
     "evaluate",
 ]
 
+# PyTorch backends — pick EXACTLY ONE per machine (they conflict):
+#   uv sync --extra rocm --extra dev   # AMD Strix Halo (gfx1151)
+#   uv sync --extra cpu  --extra dev   # CPU / CI / non-AMD contributors
+# torch is intentionally NOT a base dependency so a backend is always chosen
+# explicitly (this is what stops a stray PyPI CUDA wheel from being resolved).
+cpu = ["torch>=2.7"]
+# Strix Halo (gfx1151) runs the stable rocm6.2 wheels when masqueraded as gfx1100
+# via HSA_OVERRIDE_GFX_VERSION=11.0.0 (see README). torch 2.5.1 is the version on
+# that index; pytorch-triton-rocm is its GPU companion.
+rocm = ["torch==2.5.1", "pytorch-triton-rocm"]
+
 [project.urls]
 Repository = "https://github.com/barmag/fanous-llm-lens"
+
+# ───────────────────── uv: PyTorch backend selection ─────────────────────
+# rocm wheels come from the stable ROCm 6.2 index (the build that actually
+# executes on the Radeon 8060S). Requires HSA_OVERRIDE_GFX_VERSION=11.0.0 at run
+# time. Bump the index when a newer ROCm build is verified on this chip.
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "rocm" }]]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-rocm", extra = "rocm" },
+]
+pytorch-triton-rocm = [
+    { index = "pytorch-rocm", extra = "rocm" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm6.2"
+explicit = true
 
 [build-system]
 requires = ["hatchling"]

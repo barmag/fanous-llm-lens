@@ -39,25 +39,43 @@ fanous-llm-lens/
 
 ### Install
 
+The PyTorch backend is selected with a uv **extra** (they're mutually exclusive),
+so torch never silently resolves to a stray PyPI CUDA wheel:
+
 ```bash
 git clone https://github.com/barmag/fanous-llm-lens.git
 cd fanous-llm-lens
 
-# Create virtualenv
-uv venv
-source .venv/bin/activate
+# CPU / CI / non-AMD contributors (works everywhere):
+uv sync --extra cpu --extra dev
 
-# Install torch from ROCm nightly (separate index)
-uv pip install torch torchvision torchaudio \
-    --index-url https://download.pytorch.org/whl/nightly/rocm6.4
-
-# Install package + dev tools
-uv pip install -e ".[dev]"
+# AMD Strix Halo (Radeon 8060S, gfx1151) — stable ROCm 6.2 wheels:
+uv sync --extra rocm --extra dev
+export HSA_OVERRIDE_GFX_VERSION=11.0.0   # also in ~/.bashrc; required at run time
 ```
+
+> **gfx1151 GPU notes (Radeon 8060S):** the working stack is **torch 2.5.1+rocm6.2**
+> with `HSA_OVERRIDE_GFX_VERSION=11.0.0`, which presents the chip as gfx1100 — an
+> ISA the rocm6.2 wheels have kernels for. The newer rocm6.4 *nightly* wheels and
+> the scottt/rocm-TheRock gfx1151 build do **not** execute on this chip (they fail
+> with `no kernel image` / `invalid device function`), so we pin the stable 6.2
+> index. Bump it once a newer ROCm build is verified here. CPU works everywhere via
+> `--extra cpu`; the notebook helpers fall back to CPU if the GPU can't run a kernel.
+>
+> Note: the `rocm` extra resolves `transformer-lens` to 2.15.4 (TL 3.1.0's metadata
+> requires `torch>=2.6`, but 2.5.1 is what runs on this GPU). TL 3.1.0 runs fine on
+> torch 2.5.1 in practice — to use it, bump it on top without touching torch:
+> ```bash
+> uv sync --extra rocm --extra dev
+> uv pip install --no-deps transformer-lens==3.1.0
+> ```
+> (A uv `override-dependencies` can't do this — it's global and collapses the
+> per-extra index split, so the `--no-deps` bump is the clean way.)
 
 ### Verify
 
-Open `notebooks/00-rocm-sanity-check.ipynb` and run all cells. If torch sees the iGPU and a 70M-param model loads cleanly, you're set.
+Open `notebooks/00-rocm-sanity-check.ipynb` and run all cells. The matmul and a
+70M-param model should run on `cuda` (with `HSA_OVERRIDE_GFX_VERSION=11.0.0` set).
 
 ## Quickstart
 
