@@ -90,12 +90,40 @@ def make_induction_data(batch, seq_len, d_vocab, seed=DEFAULT_SEED):
     """Sequences whose second half repeats their first half -> rewards induction.
 
     Returns a [batch, seq_len] long tensor; seq_len must be even; ids in [1, d_vocab).
+    NB: the repeat is at a FIXED offset, so a single layer can copy it positionally.
+    For a model that must build a real prev-token -> induction *composition*, use
+    `make_repeated_with_gap` (variable offset defeats the positional shortcut).
     """
     assert seq_len % 2 == 0, "seq_len must be even"
     g = torch.Generator().manual_seed(seed)
     half = seq_len // 2
     first = torch.randint(1, d_vocab, (batch, half), generator=g)
     return torch.cat([first, first], dim=1)
+
+
+def make_repeated_with_gap(batch, block_len, gap_max, d_vocab, seed=DEFAULT_SEED):
+    """[BOS, A, <random gap>, A] — a random block A that repeats after a VARIABLE
+    gap, so the repeat sits at a different offset each sequence. A fixed positional
+    rule can't copy it; the model must find "where did this token appear before"
+    (content) and look one past it -> a genuine prev-token(L0) -> induction(L1)
+    composition forms. n_ctx = 1 + 2*block_len + gap_max.
+
+    Returns (tokens, src), both [batch, n_ctx] long. Token id 1 is BOS; content ids
+    are in [2, d_vocab). src[b, t] is the first-occurrence index of the token
+    repeated at position t (else -1) — the known copy source for scoring induction.
+    """
+    g = torch.Generator().manual_seed(seed)
+    n_ctx = 1 + 2 * block_len + gap_max
+    tokens = torch.randint(2, d_vocab, (batch, n_ctx), generator=g)
+    tokens[:, 0] = 1  # BOS
+    src = torch.full((batch, n_ctx), -1, dtype=torch.long)
+    for b in range(batch):
+        gap = int(torch.randint(1, gap_max + 1, (1,), generator=g))
+        s2 = 1 + block_len + gap
+        tokens[b, s2 : s2 + block_len] = tokens[b, 1 : 1 + block_len].clone()
+        for j in range(block_len):
+            src[b, s2 + j] = 1 + j
+    return tokens, src
 
 
 def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED, log_every=0):
