@@ -22,9 +22,10 @@ def run_notebook(filepath, mock_setup=None):
     for cell in code_cells:
         # Join lines of the cell
         cell_source = "".join(cell["source"])
-        # Comment out colab specific pip installs to avoid running them locally
-        # and insert 'pass' to maintain valid python indentation block
+        # Comment out colab specific pip installs/uninstalls and wget calls to avoid
+        # running them locally; insert 'pass' to maintain valid python indentation blocks
         cell_source = cell_source.replace("!pip install", "pass # !pip install")
+        cell_source = cell_source.replace("!pip uninstall", "pass # !pip uninstall")
         cell_source = cell_source.replace("!wget", "pass # !wget")
         source_lines.append(cell_source)
 
@@ -121,6 +122,17 @@ def mock_stage2_dash(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
+def mock_stage2_dash2(ctx):
+    # Stage 2dash²: loads two trained checkpoints (1-layer 2dash + 2-layer) and
+    # decomposes the two-layer model into composition circuits + an induction head.
+    # FORCE_TINY swaps in tiny network-free models so CI runs in seconds without the
+    # (gitignored) checkpoints or any HF download.
+    import plotly.graph_objects as go
+
+    ctx["FORCE_TINY"] = True
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
 def mock_stage2_d(ctx):
     # Stage 2d: 2-layer model WITH MLP on Arabic. Shrink data/training, no-op plotly.
     import plotly.graph_objects as go
@@ -185,6 +197,13 @@ if stage_arg in ("2d", "all"):
 if stage_arg in ("2dash", "all"):
     if os.path.exists("stage2_dash_skip_trigram_reference.ipynb"):
         success = run_notebook("stage2_dash_skip_trigram_reference.ipynb", mock_stage2_dash)
+        if not success:
+            all_passed = False
+
+# Stage 2dash²
+if stage_arg in ("2dash2", "all"):
+    if os.path.exists("stage2_dash2_composition_induction_reference.ipynb"):
+        success = run_notebook("stage2_dash2_composition_induction_reference.ipynb", mock_stage2_dash2)
         if not success:
             all_passed = False
 
