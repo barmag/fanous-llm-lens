@@ -30,9 +30,25 @@ def device() -> str:
 
 
 def make_tiny_model(
-    n_layers, n_heads, d_vocab, n_ctx, d_model=128, attn_only=True, seed=DEFAULT_SEED
+    n_layers,
+    n_heads,
+    d_vocab,
+    n_ctx,
+    d_model=128,
+    attn_only=True,
+    seed=DEFAULT_SEED,
+    normalization_type="LN",
+    positional_embedding_type="standard",
 ):
-    """Build a tiny HookedTransformer. Rungs 2a-2c keep attn_only=True; 2d flips it."""
+    """Build a tiny HookedTransformer. Rungs 2a-2c keep attn_only=True; 2d flips it.
+
+    normalization_type / positional_embedding_type default to the usual LN +
+    learned-absolute setup. Rung 2dash overrides them (LN-free + "shortformer")
+    so the one-layer model splits *exactly* into a bigram direct path plus
+    per-head skip-trigram circuits — LN would entangle the split (LN(a+b) !=
+    LN(a)+LN(b)), and shortformer keeps the positional signal in the QK path
+    only, out of the value/OV path the skip-trigram reads.
+    """
     cfg = HookedTransformerConfig(
         n_layers=n_layers,
         n_heads=n_heads,
@@ -43,7 +59,8 @@ def make_tiny_model(
         act_fn=(None if attn_only else "gelu"),
         d_vocab=d_vocab,
         n_ctx=n_ctx,
-        normalization_type="LN",
+        normalization_type=normalization_type,
+        positional_embedding_type=positional_embedding_type,
         seed=seed,
         device=device(),
     )

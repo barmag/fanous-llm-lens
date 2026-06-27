@@ -111,6 +111,16 @@ def mock_stage2_c(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
+def mock_stage2_dash(ctx):
+    # Stage 2dash: loads a faithful-scale trained checkpoint and decomposes it into
+    # bigram + skip-trigram circuits. FORCE_TINY swaps in a tiny network-free model so
+    # CI runs in seconds without the (gitignored) checkpoint or a HF download.
+    import plotly.graph_objects as go
+
+    ctx["FORCE_TINY"] = True
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
 def mock_stage2_d(ctx):
     # Stage 2d: 2-layer model WITH MLP on Arabic. Shrink data/training, no-op plotly.
     import plotly.graph_objects as go
@@ -168,6 +178,13 @@ if stage_arg in ("2c", "all"):
 if stage_arg in ("2d", "all"):
     if os.path.exists("stage2_d_mlp_reference.ipynb"):
         success = run_notebook("stage2_d_mlp_reference.ipynb", mock_stage2_d)
+        if not success:
+            all_passed = False
+
+# Stage 2dash
+if stage_arg in ("2dash", "all"):
+    if os.path.exists("stage2_dash_skip_trigram_reference.ipynb"):
+        success = run_notebook("stage2_dash_skip_trigram_reference.ipynb", mock_stage2_dash)
         if not success:
             all_passed = False
 

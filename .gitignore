@@ -56,6 +56,9 @@ htmlcov/
 # files inside a fully-ignored directory)
 data/*
 checkpoints/*
+# Stage 2dash trains a local model + caches a multi-GB corpus here (root rule above
+# only matches /checkpoints, not this nested path).
+notebooks/education/checkpoints/
 models/*
 wandb/
 mlruns/

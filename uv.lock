@@ -51,7 +51,8 @@ name = "accelerate"
 version = "1.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "psutil" },
@@ -923,7 +924,8 @@ dependencies = [
     { name = "filelock" },
     { name = "fsspec", extra = ["http"] },
     { name = "httpx" },
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "multiprocess" },
     { name = "numpy" },
     { name = "packaging" },
@@ -1008,7 +1010,8 @@ dependencies = [
     { name = "datasets" },
     { name = "dill" },
     { name = "fsspec", extra = ["http"] },
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "multiprocess" },
     { name = "numpy" },
     { name = "packaging" },
@@ -1049,7 +1052,8 @@ dependencies = [
     { name = "datasets" },
     { name = "einops" },
     { name = "hf-transfer" },
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "ipywidgets" },
     { name = "jupyterlab" },
     { name = "matplotlib" },
@@ -1061,7 +1065,8 @@ dependencies = [
     { name = "tqdm" },
     { name = "transformer-lens", version = "2.15.4", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "transformer-lens", version = "3.1.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
-    { name = "transformers" },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "5.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "wandb" },
 ]
 
@@ -1084,6 +1089,7 @@ rocm = [
     { name = "pytorch-triton-rocm", version = "3.1.0", source = { registry = "https://download.pytorch.org/whl/rocm6.2" }, marker = "(python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-rocm') or (python_full_version < '3.14' and sys_platform == 'linux' and extra == 'extra-15-fanous-llm-lens-rocm') or (python_full_version < '3.12' and sys_platform != 'linux' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (python_full_version >= '3.14' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
     { name = "pytorch-triton-rocm", version = "3.5.1", source = { registry = "https://download.pytorch.org/whl/rocm6.2" }, marker = "(python_full_version < '3.12' and sys_platform != 'linux' and extra == 'extra-15-fanous-llm-lens-rocm') or (python_full_version >= '3.14' and extra == 'extra-15-fanous-llm-lens-rocm') or (python_full_version >= '3.12' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-rocm') or (sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-rocm') or (sys_platform == 'linux' and extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
     { name = "torch", version = "2.5.1+rocm6.2", source = { registry = "https://download.pytorch.org/whl/rocm6.2" } },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" } },
 ]
 train = [
     { name = "evaluate" },
@@ -1120,6 +1126,7 @@ requires-dist = [
     { name = "tqdm" },
     { name = "transformer-lens" },
     { name = "transformers" },
+    { name = "transformers", marker = "extra == 'rocm'", specifier = "<5" },
     { name = "trl", marker = "extra == 'train'" },
     { name = "wandb" },
 ]
@@ -1447,18 +1454,79 @@ wheels = [
 
 [[package]]
 name = "huggingface-hub"
+version = "0.36.2"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'linux'",
+    "python_full_version < '3.12' and sys_platform == 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten'",
+    "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+]
+dependencies = [
+    { name = "filelock", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "fsspec", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "hf-xet", marker = "(platform_machine == 'aarch64' and extra == 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'amd64' and extra == 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'arm64' and extra == 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'x86_64' and extra == 'extra-15-fanous-llm-lens-rocm') or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
+    { name = "packaging", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "pyyaml", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "requests", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "typing-extensions", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7c/b7/8cb61d2eece5fb05a83271da168186721c450eb74e3c31f7ef3169fa475b/huggingface_hub-0.36.2.tar.gz", hash = "sha256:1934304d2fb224f8afa3b87007d58501acfda9215b334eed53072dd5e815ff7a", size = 649782, upload-time = "2026-02-06T09:24:13.098Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/af/48ac8483240de756d2438c380746e7130d1c6f75802ef22f3c6d49982787/huggingface_hub-0.36.2-py3-none-any.whl", hash = "sha256:48f0c8eac16145dfce371e9d2d7772854a4f591bcb56c9cf548accf531d54270", size = 566395, upload-time = "2026-02-06T09:24:11.133Z" },
+]
+
+[[package]]
+name = "huggingface-hub"
 version = "1.12.2"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
-    { name = "httpx" },
-    { name = "packaging" },
-    { name = "pyyaml" },
-    { name = "tqdm" },
-    { name = "typer" },
-    { name = "typing-extensions" },
+    { name = "filelock", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "fsspec", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "hf-xet", marker = "(platform_machine == 'AMD64' and extra == 'extra-15-fanous-llm-lens-cpu') or (platform_machine == 'AMD64' and extra != 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'aarch64' and extra == 'extra-15-fanous-llm-lens-cpu') or (platform_machine == 'aarch64' and extra != 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'amd64' and extra == 'extra-15-fanous-llm-lens-cpu') or (platform_machine == 'amd64' and extra != 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'arm64' and extra == 'extra-15-fanous-llm-lens-cpu') or (platform_machine == 'arm64' and extra != 'extra-15-fanous-llm-lens-rocm') or (platform_machine == 'x86_64' and extra == 'extra-15-fanous-llm-lens-cpu') or (platform_machine == 'x86_64' and extra != 'extra-15-fanous-llm-lens-rocm') or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
+    { name = "httpx", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "packaging", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "pyyaml", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "typer", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "typing-extensions", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3e/9f/3fda8b014db3ae239addc9b48b35c2cf7d318950b430712f34a2473ef81d/huggingface_hub-1.12.2.tar.gz", hash = "sha256:282c4999e641c89affdc4c02c265eddea944c1390dc19e89dac8ad3ae76dbdaf", size = 763393, upload-time = "2026-04-29T09:45:09.202Z" }
 wheels = [
@@ -2833,7 +2901,8 @@ version = "0.19.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "accelerate" },
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "psutil" },
@@ -2844,7 +2913,8 @@ dependencies = [
     { name = "torch", version = "2.12.1", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm')" },
     { name = "torch", version = "2.12.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu') or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
     { name = "tqdm" },
-    { name = "transformers" },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "5.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/86/cf/037f1e3d5186496c05513a6754639e2dab3038a05f384284d49a9bd06a2d/peft-0.19.1.tar.gz", hash = "sha256:0d97542fe96dcdaa20d3b81c06f26f988618f416a73544ab23c3618ccb674a40", size = 763738, upload-time = "2026-04-16T15:46:45.105Z" }
 wheels = [
@@ -4336,7 +4406,8 @@ name = "tokenizers"
 version = "0.22.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "huggingface-hub" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/73/6f/f80cfef4a312e1fb34baf7d85c72d4411afde10978d4657f8cdd811d3ccc/tokenizers-0.22.2.tar.gz", hash = "sha256:473b83b915e547aa366d1eee11806deaf419e17be16310ac0a14077f1e28f917", size = 372115, upload-time = "2026-01-05T10:45:15.988Z" }
 wheels = [
@@ -4646,7 +4717,7 @@ dependencies = [
     { name = "sentencepiece", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "torch", version = "2.5.1+rocm6.2", source = { registry = "https://download.pytorch.org/whl/rocm6.2" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
-    { name = "transformers", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "transformers-stream-generator", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "typeguard", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
     { name = "typing-extensions", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
@@ -4698,7 +4769,7 @@ dependencies = [
     { name = "datasets", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "einops", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "fancy-einsum", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
-    { name = "huggingface-hub", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "jaxtyping", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "numpy", marker = "(python_full_version < '3.13' and extra == 'extra-15-fanous-llm-lens-cpu') or (python_full_version < '3.13' and extra != 'extra-15-fanous-llm-lens-rocm') or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
     { name = "pandas", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
@@ -4709,7 +4780,7 @@ dependencies = [
     { name = "torch", version = "2.12.1", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm') or (extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm')" },
     { name = "torch", version = "2.12.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu') or (extra == 'extra-15-fanous-llm-lens-cpu' and extra == 'extra-15-fanous-llm-lens-rocm')" },
     { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
-    { name = "transformers", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "5.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "transformers-stream-generator", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "typeguard", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
     { name = "typing-extensions", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
@@ -4722,18 +4793,81 @@ wheels = [
 
 [[package]]
 name = "transformers"
+version = "4.57.6"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'linux'",
+    "python_full_version < '3.12' and sys_platform == 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten'",
+    "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'linux' and sys_platform != 'win32'",
+]
+dependencies = [
+    { name = "filelock", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "huggingface-hub", version = "0.36.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "numpy", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "packaging", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "pyyaml", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "regex", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "requests", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "safetensors", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tokenizers", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c4/35/67252acc1b929dc88b6602e8c4a982e64f31e733b804c14bc24b47da35e6/transformers-4.57.6.tar.gz", hash = "sha256:55e44126ece9dc0a291521b7e5492b572e6ef2766338a610b9ab5afbb70689d3", size = 10134912, upload-time = "2026-01-16T10:38:39.284Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/b8/e484ef633af3887baeeb4b6ad12743363af7cce68ae51e938e00aaa0529d/transformers-4.57.6-py3-none-any.whl", hash = "sha256:4c9e9de11333ddfe5114bc872c9f370509198acf0b87a832a0ab9458e2bd0550", size = 11993498, upload-time = "2026-01-16T10:38:31.289Z" },
+]
+
+[[package]]
+name = "transformers"
 version = "5.7.0"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'emscripten' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform != 'darwin' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'darwin' and extra == 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform == 'emscripten' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+    "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32' and extra != 'extra-15-fanous-llm-lens-cpu' and extra != 'extra-15-fanous-llm-lens-rocm'",
+]
 dependencies = [
-    { name = "huggingface-hub" },
-    { name = "numpy" },
-    { name = "packaging" },
-    { name = "pyyaml" },
-    { name = "regex" },
-    { name = "safetensors" },
-    { name = "tokenizers" },
-    { name = "tqdm" },
-    { name = "typer" },
+    { name = "huggingface-hub", version = "1.12.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "numpy", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "packaging", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "pyyaml", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "regex", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "safetensors", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tokenizers", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "tqdm", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "typer", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4d/fe/7e84d20ac7d4d5d14bac2eab5976088d86342959fc2c0da54b4c2fc99856/transformers-5.7.0.tar.gz", hash = "sha256:a9d35cf39804e3456c1f9bc1a79ad5ffa878640a61f51f66f71c97f4b4e2ce10", size = 8401287, upload-time = "2026-04-28T18:30:09.75Z" }
 wheels = [
@@ -4745,7 +4879,8 @@ name = "transformers-stream-generator"
 version = "0.0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "transformers" },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "5.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/c2/65f13aec253100e1916e9bd7965fe17bde796ebabeb1265f45191ab4ddc0/transformers-stream-generator-0.0.5.tar.gz", hash = "sha256:271deace0abf9c0f83b36db472c8ba61fdc7b04d1bf89d845644acac2795ed57", size = 13033, upload-time = "2024-03-11T14:18:02.079Z" }
 
@@ -4775,7 +4910,8 @@ dependencies = [
     { name = "datasets" },
     { name = "jinja2" },
     { name = "packaging" },
-    { name = "transformers" },
+    { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "transformers", version = "5.7.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7f/ae/d11c54b4fac59bb20be50fd4a53d300fa741c6b31d561d71e1418a0943b9/trl-1.3.0.tar.gz", hash = "sha256:ad0dfd96cb7e06b41edd913463911b665914e6c37302c8609e8784b6f4e9235c", size = 598406, upload-time = "2026-04-26T15:28:27.704Z" }
 wheels = [
@@ -4799,10 +4935,10 @@ name = "typer"
 version = "0.25.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "annotated-doc" },
-    { name = "click" },
-    { name = "rich" },
-    { name = "shellingham" },
+    { name = "annotated-doc", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "click", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "rich", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
+    { name = "shellingham", marker = "extra == 'extra-15-fanous-llm-lens-cpu' or extra != 'extra-15-fanous-llm-lens-rocm'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/7b/27/ede8cec7596e0041ba7e7b80b47d132562f56ff454313a16f6084e555c9f/typer-0.25.0.tar.gz", hash = "sha256:123eaf9f19bb40fd268310e12a542c0c6b4fab9c98d9d23342a01ff95e3ce930", size = 120150, upload-time = "2026-04-26T08:46:14.767Z" }
 wheels = [
