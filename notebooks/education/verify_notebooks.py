@@ -99,6 +99,18 @@ def mock_stage2_b(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
+def mock_stage2_c(ctx):
+    # Stage 2c: synthetic induction training + a 2-layer Arabic model. Shrink both
+    # (won't form a clean induction head at these sizes, but must run), no-op plotly.
+    import plotly.graph_objects as go
+
+    ctx["STEPS"] = 30          # synthetic induction training steps
+    ctx["MAX_CHARS"] = 15000   # Arabic corpus
+    ctx["N_CTX_AR"] = 16
+    ctx["N_EPOCHS"] = 2
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
 # Run checks
 # Resolve notebook paths relative to this file, not the caller's cwd, so the
 # existence checks below never silently skip (a vacuous "SUCCESS") when the
@@ -132,6 +144,13 @@ if stage_arg in ("c", "all"):
 if stage_arg in ("2b", "all"):
     if os.path.exists("stage2_b_multi_head_reference.ipynb"):
         success = run_notebook("stage2_b_multi_head_reference.ipynb", mock_stage2_b)
+        if not success:
+            all_passed = False
+
+# Stage 2c
+if stage_arg in ("2c", "all"):
+    if os.path.exists("stage2_c_depth_induction_reference.ipynb"):
+        success = run_notebook("stage2_c_depth_induction_reference.ipynb", mock_stage2_c)
         if not success:
             all_passed = False
 

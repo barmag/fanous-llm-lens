@@ -71,6 +71,18 @@ def test_make_compact_encoder_maps_unseen_to_unk():
     assert encode("z") == [0]  # 'z' never appeared in the corpus -> [UNK]
 
 
+def test_make_repeated_with_gap_structure():
+    tokens, src = tiny.make_repeated_with_gap(batch=4, block_len=5, gap_max=6, d_vocab=20, seed=0)
+    assert tuple(tokens.shape) == (4, 1 + 2 * 5 + 6) == tuple(src.shape)
+    assert (tokens[:, 0] == 1).all()  # BOS
+    assert int(tokens[:, 1:].min()) >= 2 and int(tokens.max()) < 20
+    for b in range(4):
+        rep = (src[b] >= 0).nonzero().flatten()
+        assert len(rep) == 5  # one full block repeated
+        for t in rep:
+            assert int(tokens[b, t]) == int(tokens[b, int(src[b, t])])  # copies its source
+
+
 def test_train_reduces_loss():
     m = tiny.make_tiny_model(n_layers=1, n_heads=2, d_vocab=40, n_ctx=16, d_model=32)
     batches = tiny.make_induction_data(batch=8, seq_len=16, d_vocab=40, seed=0)
