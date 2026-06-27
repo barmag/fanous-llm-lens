@@ -103,6 +103,26 @@ beginner-friendly bilingual walk-through of the algorithm in [`notebooks/02-toke
 | 02 | [`02-tokenization-101-masri`](notebooks/02-tokenization-101-masri.ipynb) | Bilingual (Arabic + English, RTL) walk-through of how subword tokenizers work, for a Masri-reading audience with Python but no ML background. BPE-by-hand on 6 Masri words; live BPE training on the v1 pair set; head-to-head vs `gpt2`. |
 | 03 | [`03-whats-inside-the-box-masri`](notebooks/03-whats-inside-the-box-masri.ipynb) | Bilingual visual tour of a small transformer (`pythia-160m`). A Masri prompt is followed end-to-end: token IDs → embedding → residual stream → 12 layers of attention + MLP → unembedding → next-token probability. Names the parts; runs no experiments. The on-ramp from nb02 to anything interpretability-shaped. |
 
+### Education ladder — [`notebooks/education/`](notebooks/education/)
+
+A bilingual (RTL Arabic + English), Colab-runnable curriculum that **builds a
+transformer one piece at a time on Arabic (MSA + Masri) data, from scratch**.
+Each rung ships as a `*_reference` notebook (fully worked) and a `*_experiment`
+notebook (key cells hollowed to `# TODO` for self-study); a shared
+[`tiny.py`](notebooks/education/tiny.py) helper is `wget`-fetched on Colab, and
+[`verify_notebooks.py`](notebooks/education/verify_notebooks.py) runs every
+reference end-to-end as a smoke test.
+
+| Rung | Notebook | What it adds |
+|---|---|---|
+| 1a | [`stage1_a_char`](notebooks/education/stage1_a_char_reference.ipynb) | Zero-layer (bigram) model, character-level — transition matrices learned from scratch. |
+| 1b | [`stage1_b_word`](notebooks/education/stage1_b_word_reference.ipynb) | Zero-layer, word-level — dialect next-word bets as bigram transition trees. |
+| 1c | [`stage1_c_subword`](notebooks/education/stage1_c_subword_reference.ipynb) | Zero-layer, subword/BPE — is "dialect" a direction you can find in learned embeddings? |
+| 2a | [`stage2_a_single_block`](notebooks/education/stage2_a_single_block_reference.ipynb) | **+ one attention block** — a token can look at earlier tokens; context changes the prediction. QK proven by hand against the cache; RTL attention heatmaps. |
+| 2b | [`stage2_b_multi_head`](notebooks/education/stage2_b_multi_head_reference.ipynb) | **+ multiple heads** — several relations in parallel; per-head heatmap grid. |
+| 2c | [`stage2_c_depth_induction`](notebooks/education/stage2_c_depth_induction_reference.ipynb) | **+ a second layer** — composition forms a real **induction head** (reproduced from scratch via variable-gap data, the framework's capstone). |
+| 2d | [`stage2_d_mlp`](notebooks/education/stage2_d_mlp_reference.ipynb) | **+ the MLP** — completes the block; proven per-position (no token-mixing), bridging to features / SAEs. |
+
 ## Roadmap
 
 **Phase 0 — Foundation** *(complete 2026-04-30)*
@@ -134,6 +154,7 @@ the next phase needs.*
 methods. Each method gets a Masri-grounded application after an English / MSA
 baseline the reader can sanity-check against the literature.*
 
+- [x] **Architecture ladder, from scratch.** Build a transformer one component at a time on Arabic — embeddings → attention block → multi-head → depth → MLP — culminating in an **induction head reproduced from scratch** (the 2021 framework's capstone circuit). *(See the [education ladder](notebooks/education/) above: Stage 1a–1c + Stage 2a–2d.)*
 - [ ] **nb05 — Does the model know it's reading Masri?** Train a linear probe on residual-stream activations at every layer to classify MSA vs Masri. Output: one plot of probe accuracy vs depth. The first real interpretability finding on dialect.
 - [ ] **Circuit reproduction.** Reproduce one published circuit (e.g., IOI-style on Pythia-160m) on English first, as a baseline.
 - [ ] **Apply the same circuit lens to Masri inputs.** Does the circuit fire? Misfire? Degrade gracefully? This is the dialect-aware contribution.
