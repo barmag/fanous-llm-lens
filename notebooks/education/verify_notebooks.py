@@ -111,6 +111,16 @@ def mock_stage2_c(ctx):
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
+def mock_stage2_d(ctx):
+    # Stage 2d: 2-layer model WITH MLP on Arabic. Shrink data/training, no-op plotly.
+    import plotly.graph_objects as go
+
+    ctx["MAX_CHARS"] = 15000
+    ctx["N_CTX"] = 16
+    ctx["N_EPOCHS"] = 2
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
 # Run checks
 # Resolve notebook paths relative to this file, not the caller's cwd, so the
 # existence checks below never silently skip (a vacuous "SUCCESS") when the
@@ -151,6 +161,13 @@ if stage_arg in ("2b", "all"):
 if stage_arg in ("2c", "all"):
     if os.path.exists("stage2_c_depth_induction_reference.ipynb"):
         success = run_notebook("stage2_c_depth_induction_reference.ipynb", mock_stage2_c)
+        if not success:
+            all_passed = False
+
+# Stage 2d
+if stage_arg in ("2d", "all"):
+    if os.path.exists("stage2_d_mlp_reference.ipynb"):
+        success = run_notebook("stage2_d_mlp_reference.ipynb", mock_stage2_d)
         if not success:
             all_passed = False
 
