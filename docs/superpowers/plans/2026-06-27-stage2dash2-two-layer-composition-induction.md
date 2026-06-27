@@ -27,12 +27,15 @@
 |---|---|---|
 | `notebooks/education/tiny.py` | Add shared induction-score helpers | Modify |
 | `tests/education/test_induction_score.py` | Unit tests for the helpers | Create |
+| `notebooks/education/corpus.py` | Shared corpus/tokenizer helpers (extracted from train_stage2dash.py) | Create |
+| `notebooks/education/train_stage2dash.py` | Import shared helpers from `corpus.py` (refactor, no behaviour change) | Modify |
+| `tests/education/test_corpus.py` | Unit test for `corpus.clean` + import-smoke for both trainers | Create |
 | `notebooks/education/train_stage2dash2.py` | Offline 2-layer training + verification gate | Create |
 | `notebooks/education/stage2_dash2_composition_induction_reference.ipynb` | The reference notebook (10 sections) | Create |
 | `notebooks/education/verify_notebooks.py` | CI mock + registration for the new notebook | Modify |
 | `README.md` | Ladder-table row + roadmap checkbox | Modify |
 
-`.gitignore` already ignores `notebooks/education/checkpoints/` — no change needed (verify in Task 5).
+`.gitignore` already ignores `notebooks/education/checkpoints/` — no change needed (verify in Task 6).
 
 ---
 
@@ -155,14 +158,107 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 2: Offline training script `train_stage2dash2.py`
+## Task 2: Extract shared corpus/tokenizer module `corpus.py`
 
 **Files:**
-- Create: `notebooks/education/train_stage2dash2.py` (near-copy of `train_stage2dash.py`)
+- Create: `notebooks/education/corpus.py`
+- Modify: `notebooks/education/train_stage2dash.py` (import the helpers instead of defining them)
+- Test: `tests/education/test_corpus.py`
+
+**Interfaces:**
+- Consumes: nothing new (pure extraction).
+- Produces: module `corpus` exposing `clean(text) -> str`, `build_corpus(char_budget, cache_path) -> str`, `train_tokenizer(text, vocab_size, out_path) -> Tokenizer`, `tokenize(text, tok, cache_path) -> np.ndarray`. Both `train_stage2dash.py` and (Task 3) `train_stage2dash2.py` import these.
+
+This is a behaviour-preserving refactor: move the four helpers verbatim into `corpus.py`, then have `train_stage2dash.py` import them. The `_AR`/`_NOISE`/`_WS` module-level regexes move with `clean`.
+
+- [ ] **Step 1: Write the failing test**
+
+Create `tests/education/test_corpus.py`:
+
+```python
+"""Unit test for the shared corpus helpers + import-smoke for both trainers.
+
+clean() is pure (regex-only, no network); we test it directly. We also assert
+both training scripts import the shared module so the refactor is wired up."""
+import sys
+from pathlib import Path
+
+EDU = Path(__file__).resolve().parents[2] / "notebooks" / "education"
+sys.path.insert(0, str(EDU))
+
+
+def test_clean_strips_latin_digits_and_collapses_whitespace():
+    import corpus
+    # keeps Arabic letters, drops latin/digits/underscore/@, collapses whitespace
+    assert corpus.clean("مرحبا   world123 @user يا") == "مرحبا  يا"
+
+
+def test_both_trainers_import_shared_corpus():
+    import importlib
+    for mod in ("train_stage2dash", "train_stage2dash2"):
+        m = importlib.import_module(mod)
+        assert hasattr(m, "corpus") or hasattr(m, "build_corpus"), mod
+```
+
+Note: `test_both_trainers_import_shared_corpus` will not fully pass until Task 3 creates `train_stage2dash2.py`; in this task, run only the `clean` test (next step). The import-smoke test is included now so it is not forgotten — it goes green in Task 3.
+
+- [ ] **Step 2: Run the clean() test to verify it fails**
+
+Run: `uv run --extra cpu pytest tests/education/test_corpus.py::test_clean_strips_latin_digits_and_collapses_whitespace -v`
+Expected: FAIL — `ModuleNotFoundError: No module named 'corpus'`.
+
+- [ ] **Step 3: Create `corpus.py` and refactor `train_stage2dash.py`**
+
+Create `notebooks/education/corpus.py` with the module docstring and the four helpers (`clean`, `build_corpus`, `train_tokenizer`, `tokenize`) plus the `_AR`/`_NOISE`/`_WS` regexes, moved **verbatim** from `train_stage2dash.py` (lines 46–145), with the needed imports (`os`, `re`, `numpy as np`; `datasets`/`tokenizers` stay as the existing lazy in-function imports):
+
+```python
+"""Shared corpus + tokenizer helpers for the offline Stage 2dash / 2dash² trainers.
+
+Streaming/cleaning Arabic text, training a small unicode BPE, and caching the
+tokenised ids. Extracted from train_stage2dash.py so both trainers reuse one copy."""
+from __future__ import annotations
+
+import os
+import re
+
+import numpy as np
+
+_AR = re.compile(r"[^\sء-ي]")
+_NOISE = re.compile(r"[a-zA-Z0-9_@]+")
+_WS = re.compile(r"\s+")
+
+# (clean, build_corpus, train_tokenizer, tokenize — moved verbatim from
+#  train_stage2dash.py lines 54-145)
+```
+
+Then in `train_stage2dash.py`: delete the four moved helpers and the three regexes, and add `import corpus` near the other imports, plus `from corpus import build_corpus, train_tokenizer, tokenize` (so the existing call sites in `train()` are unchanged). Keep everything else identical.
+
+- [ ] **Step 4: Run the clean() test + confirm 2dash trainer still imports**
+
+Run: `uv run --extra cpu pytest tests/education/test_corpus.py::test_clean_strips_latin_digits_and_collapses_whitespace -v`
+Expected: PASS.
+Run: `uv run --extra cpu python -c "import sys; sys.path.insert(0,'notebooks/education'); import train_stage2dash; print('2dash import OK')"`
+Expected: `2dash import OK`.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add notebooks/education/corpus.py notebooks/education/train_stage2dash.py tests/education/test_corpus.py
+git commit -m "refactor(stage2dash): extract shared corpus/tokenizer helpers into corpus.py
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+```
+
+---
+
+## Task 3: Offline training script `train_stage2dash2.py`
+
+**Files:**
+- Create: `notebooks/education/train_stage2dash2.py` (structure mirrors `train_stage2dash.py`)
 - Test: extend `tests/education/test_induction_score.py` with a gate-logic test
 
 **Interfaces:**
-- Consumes: `tiny.make_tiny_model`, `tiny.induction_scores`, `tiny.device`, `tiny.DEFAULT_SEED`; the existing 2dash corpus/tokenizer helpers (copied verbatim).
+- Consumes: `tiny.make_tiny_model`, `tiny.induction_scores`, `tiny.device`, `tiny.DEFAULT_SEED`; the shared `corpus.build_corpus`, `corpus.train_tokenizer`, `corpus.tokenize`.
 - Produces: `checkpoints/stage2dash2/model.pt` (state_dict + `config` with `n_layers=2`), `metrics.json` (now with `induction_scores` and `best_induction_score`). CLI flags `--bf16`, `--induction-threshold` (default 0.4), default `--hf-repo yassermakram/fanous-stage2dash2-attn-only-2l`.
 
 - [ ] **Step 1: Write the failing test (gate logic)**
@@ -189,7 +285,7 @@ Expected: PASS already (pure tensor logic) — this test pins the gate predicate
 
 - [ ] **Step 3: Create the training script**
 
-Create `notebooks/education/train_stage2dash2.py`. Copy `train_stage2dash.py` in full, then apply exactly these edits:
+Create `notebooks/education/train_stage2dash2.py`. Model its structure on `train_stage2dash.py` but **import the corpus/tokenizer helpers from `corpus.py`** (do not redefine them) — i.e. start from the imports + `train()` + `main()` and add `from corpus import build_corpus, train_tokenizer, tokenize`. Then apply exactly these edits:
 
 1. Replace the module docstring's first paragraph and "Why this config" block to describe the 2-layer model:
 
@@ -338,7 +434,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 3: Notebook skeleton + CI registration (§1–3, runnable end-to-end)
+## Task 4: Notebook skeleton + CI registration (§1–3, runnable end-to-end)
 
 **Files:**
 - Create: `notebooks/education/stage2_dash2_composition_induction_reference.ipynb`
@@ -541,13 +637,13 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 4: Composition algebra cells (§4–7)
+## Task 5: Composition algebra cells (§4–7)
 
 **Files:**
 - Modify: `notebooks/education/stage2_dash2_composition_induction_reference.ipynb` (append cells)
 
 **Interfaces:**
-- Consumes: `model`, `cache`, `tiny`, `torch`, `go` from Task 3 cells.
+- Consumes: `model`, `cache`, `tiny`, `torch`, `go` from Task 4 cells.
 - Produces: `q_comp`, `k_comp`, `v_comp` composition-score tensors and `ov_eig` used by §8's narrative continuity.
 
 All composition measures are weight-space (model-agnostic to language), following the paper: composition score = Frobenius norm of the composed product divided by the product of the operand norms.
@@ -647,14 +743,14 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 5: Induction synthesis + recap (§8–10) and .gitignore check
+## Task 6: Induction synthesis + recap (§8–10) and .gitignore check
 
 **Files:**
 - Modify: `notebooks/education/stage2_dash2_composition_induction_reference.ipynb` (append cells)
 - Verify (no edit expected): `.gitignore`
 
 **Interfaces:**
-- Consumes: `model`, `tiny`, `torch`, `go`, `encode`, `id_to_str`, `k_comp` from earlier cells.
+- Consumes: `model`, `tiny`, `torch`, `go`, `encode`, `id_to_str`, `k_comp` from earlier cells (Tasks 4–5).
 - Produces: terminal notebook (recap/handoff). No globals consumed downstream.
 
 - [ ] **Step 1: Append §8 (induction = K-composition) — markdown then code**
@@ -739,7 +835,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 6: Docs — README ladder row + roadmap
+## Task 7: Docs — README ladder row + roadmap
 
 **Files:**
 - Modify: `README.md`
@@ -781,19 +877,20 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ## Self-review
 
 **Spec coverage:**
-- Faithful-scale 2-layer Arabic model + offline trainer → Task 2. ✓
-- Reuse 2dash tokenizer + corpus → Task 2 Step 3 (`--reuse-from`). ✓
-- Induction verification gate + per-head scores in metrics.json → Task 2 Step 3 (gate) + Task 1 (helper). ✓
-- bf16 + batch/headless guidance → Task 2 Step 3 (`--bf16`) + Global Constraints. ✓
-- One dense notebook, 10 sections → Tasks 3–5 (§1–3, §4–7, §8–10). ✓
-- Faithfulness caveat + K-composition attribution in the notebook → Task 3 Cell 1 + Task 5 §8. ✓
-- 1-layer-vs-2-layer opening beat → Task 3 Cell 6. ✓
-- FORCE_TINY CI path + guarded assertions → Task 3 Cell 4 + Task 5 §8 guard. ✓
-- CI mock + registration → Task 3 Step 2. ✓
-- Docs (README row + roadmap) → Task 6. ✓
-- gitignore covers checkpoint → Task 5 Step 4 (verify). ✓
-- Pedagogical conventions (RTL, shape-spine, recap/handoff) → applied across Tasks 3–5. ✓
+- Shared corpus/tokenizer module (DRY, per user pre-flight decision) → Task 2. ✓
+- Faithful-scale 2-layer Arabic model + offline trainer → Task 3. ✓
+- Reuse 2dash tokenizer + corpus → Task 3 Step 3 (`--reuse-from`) + Task 2 (shared helpers). ✓
+- Induction verification gate + per-head scores in metrics.json → Task 3 Step 3 (gate) + Task 1 (helper). ✓
+- bf16 + batch/headless guidance → Task 3 Step 3 (`--bf16`) + Global Constraints. ✓
+- One dense notebook, 10 sections → Tasks 4–6 (§1–3, §4–7, §8–10). ✓
+- Faithfulness caveat + K-composition attribution in the notebook → Task 4 Cell 1 + Task 6 §8. ✓
+- 1-layer-vs-2-layer opening beat → Task 4 Cell 6. ✓
+- FORCE_TINY CI path + guarded assertions → Task 4 Cell 4 + Task 6 §8 guard. ✓
+- CI mock + registration → Task 4 Step 2. ✓
+- Docs (README row + roadmap) → Task 7. ✓
+- gitignore covers checkpoint → Task 6 Step 4 (verify). ✓
+- Pedagogical conventions (RTL, shape-spine, recap/handoff) → applied across Tasks 4–6. ✓
 
 **Placeholder scan:** No TBD/TODO. The only descriptive (non-code) cells are bilingual *markdown* prose cells (§1, §2, §5–§10 lead-ins), where the required content and verbatim mandated sentences (caveat, attribution) are specified — prose is written to the documented RTL convention, not code.
 
-**Type consistency:** `induction_score_from_pattern(pattern, seq_len) -> (n_heads,)` and `induction_scores(model, ...) -> (n_layers, n_heads)` are used identically in Task 1 (def + test), Task 2 (gate: `.max()`, `argmax`/`divmod`), and Task 5 (§8: same `argmax`/`divmod` selection). Checkpoint `config` keys (`n_layers`, `n_heads`, `d_model`, `d_head`, `d_vocab`, `n_ctx`, `attn_only`, `normalization_type`, `positional_embedding_type`) match `_model_from_ckpt` in both the 2dash notebook and Task 3 Cell 4. `k_comp` (Task 4) is the exact name consumed by Task 5 §8.
+**Type consistency:** `induction_score_from_pattern(pattern, seq_len) -> (n_heads,)` and `induction_scores(model, ...) -> (n_layers, n_heads)` are used identically in Task 1 (def + test), Task 3 (gate: `.max()`, `argmax`/`divmod`), and Task 6 (§8: same `argmax`/`divmod` selection). The shared `corpus.{build_corpus,train_tokenizer,tokenize}` signatures (Task 2) match the call sites in both trainers (Task 2 refactor + Task 3). Checkpoint `config` keys (`n_layers`, `n_heads`, `d_model`, `d_head`, `d_vocab`, `n_ctx`, `attn_only`, `normalization_type`, `positional_embedding_type`) match `_model_from_ckpt` in both the 2dash notebook and Task 4 Cell 4. `k_comp` (Task 5) is the exact name consumed by Task 6 §8.
