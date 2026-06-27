@@ -42,7 +42,6 @@ import numpy as np
 import tiny
 import torch
 
-import corpus
 from corpus import build_corpus, train_tokenizer, tokenize
 
 # --------------------------------------------------------------------------- #

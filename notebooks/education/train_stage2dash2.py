@@ -37,7 +37,6 @@ import numpy as np
 import tiny
 import torch
 
-import corpus
 from corpus import build_corpus, train_tokenizer, tokenize
 
 # --------------------------------------------------------------------------- #
@@ -136,10 +135,10 @@ def train(args):
     # verification gate: assert an induction head formed before saving
     model.eval()
     ind = tiny.induction_scores(model)          # (n_layers, n_heads)
+    passed, layer, head = tiny.induction_gate(ind, args.induction_threshold)
     best = float(ind.max())
-    layer, head = [int(x) for x in divmod(int(ind.argmax()), ind.shape[1])]
     print(f"[gate] best induction score {best:.3f} at layer {layer} head {head}")
-    if best < args.induction_threshold:
+    if not passed:
         raise SystemExit(
             f"[gate] FAILED: best induction score {best:.3f} < {args.induction_threshold}. "
             f"No induction head formed — checkpoint NOT saved.")

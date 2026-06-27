@@ -43,12 +43,16 @@ def test_model_helper_shape_and_range():
 
 
 def test_gate_passes_when_a_head_crosses_threshold():
-    # A trained model would have a real induction head; here we just assert the
-    # gate predicate the training script uses: best score >= threshold.
+    import torch
     scores = torch.tensor([[0.05, 0.02, 0.61, 0.10], [0.08, 0.03, 0.04, 0.07]])
-    best = float(scores.max())
-    threshold = 0.4
-    assert best >= threshold  # gate would PASS
-    # locate (layer, head) of the best — the notebook's §8 selection logic
-    layer, head = [int(x) for x in divmod(int(scores.argmax()), scores.shape[1])]
+    passed, layer, head = tiny.induction_gate(scores, threshold=0.4)
+    assert passed is True
     assert (layer, head) == (0, 2)
+
+
+def test_gate_fails_when_no_head_crosses_threshold():
+    import torch
+    scores = torch.tensor([[0.05, 0.02], [0.08, 0.03]])
+    passed, layer, head = tiny.induction_gate(scores, threshold=0.4)
+    assert passed is False
+    assert (layer, head) == (1, 0)  # strongest head is at layer 1, head 0 (score=0.08)

@@ -177,6 +177,19 @@ def induction_score_from_pattern(pattern, seq_len):
     return stripe.mean(dim=(0, -1))
 
 
+def induction_gate(scores, threshold=0.4):
+    """Decide whether an induction head emerged and locate it.
+
+    scores: (n_layers, n_heads) induction-score tensor (from induction_scores).
+    Returns (passed: bool, layer: int, head: int) — passed is best >= threshold;
+    layer/head index the strongest head."""
+    import torch
+
+    best = float(scores.max())
+    layer, head = [int(x) for x in divmod(int(scores.argmax()), scores.shape[1])]
+    return best >= threshold, layer, head
+
+
 def induction_scores(model, seq_len=50, n_seqs=8, seed=0):
     """Per-(layer, head) induction score for a HookedTransformer.
 
