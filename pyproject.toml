@@ -73,7 +73,12 @@ cpu = ["torch>=2.7"]
 # Strix Halo (gfx1151) runs the stable rocm6.2 wheels when masqueraded as gfx1100
 # via HSA_OVERRIDE_GFX_VERSION=11.0.0 (see README). torch 2.5.1 is the version on
 # that index; pytorch-triton-rocm is its GPU companion.
-rocm = ["torch==2.5.1", "pytorch-triton-rocm"]
+#
+# transformers<5: torch==2.5.1 caps transformer-lens at 2.15.4 (3.x needs
+# torch>=2.6), and 2.15.4 imports transformers.TRANSFORMERS_CACHE, removed in
+# transformers 5. The cap only binds on this fork; the cpu extra keeps
+# transformers 5 + transformer-lens 3.1.0.
+rocm = ["torch==2.5.1", "pytorch-triton-rocm", "transformers<5"]
 
 [project.urls]
 Repository = "https://github.com/barmag/fanous-llm-lens"
