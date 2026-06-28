@@ -163,3 +163,49 @@ def train(model, batches, n_epochs=10, lr=1e-3, seed=DEFAULT_SEED, log_every=0):
         if log_every and ((e + 1) % log_every == 0 or (e + 1) == n_epochs):
             print(f"  epoch {e + 1:>4}/{n_epochs}  loss={losses[-1]:.3f}")
     return losses
+
+
+def induction_score_from_pattern(pattern, seq_len):
+    """Mean induction-stripe score per head from an attention pattern.
+
+    `pattern` is (batch, n_heads, n_pos, n_pos) post-softmax attention over a
+    repeated sequence [x_0..x_{L-1}][x_0..x_{L-1}] with n_pos == 2*L. An
+    induction head at query position L+i attends to key i+1 (the token after
+    the previous occurrence of the current token); that is the diagonal at
+    offset (1 - L). Returns a (n_heads,) tensor in [0, 1]."""
+    stripe = pattern.diagonal(dim1=-2, dim2=-1, offset=1 - seq_len)  # (batch, n_heads, L+1)
+    return stripe.mean(dim=(0, -1))
+
+
+def induction_gate(scores, threshold=0.4):
+    """Decide whether an induction head emerged and locate it.
+
+    scores: (n_layers, n_heads) induction-score tensor (from induction_scores).
+    Returns (passed: bool, layer: int, head: int) — passed is best >= threshold;
+    layer/head index the strongest head."""
+    import torch
+
+    best = float(scores.max())
+    layer, head = [int(x) for x in divmod(int(scores.argmax()), scores.shape[1])]
+    return best >= threshold, layer, head
+
+
+def induction_scores(model, seq_len=50, n_seqs=8, seed=0):
+    """Per-(layer, head) induction score for a HookedTransformer.
+
+    Feeds n_seqs sequences of repeated random in-vocab tokens and measures how
+    strongly each head attends along the induction stripe. Returns a CPU tensor
+    of shape (n_layers, n_heads). seq_len is clamped so 2*seq_len <= n_ctx."""
+    import torch
+
+    seq_len = min(seq_len, model.cfg.n_ctx // 2)
+    g = torch.Generator().manual_seed(seed)
+    half = torch.randint(0, model.cfg.d_vocab, (n_seqs, seq_len), generator=g)
+    toks = torch.cat([half, half], dim=1).to(model.cfg.device)
+    with torch.no_grad():
+        _, cache = model.run_with_cache(toks, return_type=None)
+    per_layer = [
+        induction_score_from_pattern(cache["pattern", layer], seq_len)
+        for layer in range(model.cfg.n_layers)
+    ]
+    return torch.stack(per_layer).detach().cpu()  # (n_layers, n_heads)

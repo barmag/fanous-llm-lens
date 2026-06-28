@@ -121,6 +121,7 @@ reference end-to-end as a smoke test.
 | 2a | [`stage2_a_single_block`](notebooks/education/stage2_a_single_block_reference.ipynb) | **+ one attention block** — a token can look at earlier tokens; context changes the prediction. QK proven by hand against the cache; RTL attention heatmaps. |
 | 2b | [`stage2_b_multi_head`](notebooks/education/stage2_b_multi_head_reference.ipynb) | **+ multiple heads** — several relations in parallel; per-head heatmap grid. |
 | 2c | [`stage2_c_depth_induction`](notebooks/education/stage2_c_depth_induction_reference.ipynb) | **+ a second layer** — composition forms a real **induction head** (reproduced from scratch via variable-gap data, the framework's capstone). |
+| 2dash² | [`stage2_dash2_composition_induction`](notebooks/education/stage2_dash2_composition_induction_reference.ipynb) | **+ a faithful-scale second layer** — the full composition algebra (Q/K/V-composition, virtual heads, term importance, eigenvalue copying) culminating in an **induction head proven to be the K-composition path**, on real Arabic. The two-layer counterpart to 2dash. |
 | 2d | [`stage2_d_mlp`](notebooks/education/stage2_d_mlp_reference.ipynb) | **+ the MLP** — completes the block; proven per-position (no token-mixing), bridging to features / SAEs. |
 
 ## Roadmap
@@ -155,6 +156,7 @@ methods. Each method gets a Masri-grounded application after an English / MSA
 baseline the reader can sanity-check against the literature.*
 
 - [x] **Architecture ladder, from scratch.** Build a transformer one component at a time on Arabic — embeddings → attention block → multi-head → depth → MLP — culminating in an **induction head reproduced from scratch** (the 2021 framework's capstone circuit). *(See the [education ladder](notebooks/education/) above: Stage 1a–1c + Stage 2a–2d.)*
+- [x] **Two-layer composition & induction, faithful scale.** The framework paper's two-layer attention-only result reproduced rigorously on real Arabic — composition algebra + an induction head verified to emerge (induction-score gate). *(See [`stage2_dash2_composition_induction`](notebooks/education/stage2_dash2_composition_induction_reference.ipynb); offline trainer `train_stage2dash2.py`.)*
 - [ ] **nb05 — Does the model know it's reading Masri?** Train a linear probe on residual-stream activations at every layer to classify MSA vs Masri. Output: one plot of probe accuracy vs depth. The first real interpretability finding on dialect.
 - [ ] **Circuit reproduction.** Reproduce one published circuit (e.g., IOI-style on Pythia-160m) on English first, as a baseline.
 - [ ] **Apply the same circuit lens to Masri inputs.** Does the circuit fire? Misfire? Degrade gracefully? This is the dialect-aware contribution.

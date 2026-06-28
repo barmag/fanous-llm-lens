@@ -1,33 +1,27 @@
-"""Train the Stage 2dash model: a faithful-scale, one-layer attention-only Arabic
-transformer, plus a small custom BPE tokenizer.
+"""Train the Stage 2dash² model: a faithful-scale, TWO-layer attention-only Arabic
+transformer, reusing the Stage 2dash tokenizer + token cache.
 
-This is the heavy, run-once step (~1 h on the iGPU at ~338M tokens). It is deliberately a
-*script*, not a notebook cell — the reference notebook loads the checkpoint it saves and
-does the (fast) interpretability.
+Run-once heavy step (headless — the iGPU drives the display). The reference notebook
+stage2_dash2_composition_induction_reference.ipynb loads the checkpoint and does the
+fast interpretability (composition algebra + induction head).
 
-Why this config (see plan / A Mathematical Framework for Transformer Circuits):
-  - 1 layer, attention-only, d_model=512, n_heads=8, d_head=64 — paper-class scale
-    where skip-trigram circuits become legible rather than noise.
-  - normalization_type=None + positional_embedding_type="shortformer" so the model
-    decomposes *exactly* into a bigram direct path + per-head skip-trigram circuits.
-  - ~12k unicode BPE (readable Arabic subwords) — vocab is the main data lever;
-    Chinchilla D≈20·N puts the optimal data budget near ~270M tokens for this size.
+Why this config (A Mathematical Framework for Transformer Circuits, two-layer section):
+  - 2 layers, attention-only, d_model=512, n_heads=8 — paper-class scale where
+    head composition forms a legible induction head.
+  - normalization_type=None + positional_embedding_type="shortformer" so the two-layer
+    path expansion is exact and induction is purely content-based (a principled
+    deviation from the paper's LN + learned-positional attn-only-2l).
+  - Reuses the Stage 2dash 12k unicode BPE tokenizer.json + tokens.npy (identical vocab
+    and corpus) so the notebook's 1-layer-vs-2-layer comparison is on identical tokens.
 
-Corpus is MSA-heavy by necessity (Masri data is scarce): Arabic Wikipedia + all the
-Egyptian-dialect tweets. Outputs (under --out, gitignored):
-  tokenizer.json, model.pt (state_dict + config), metrics.json, and cached
-  corpus.txt / tokens.npy so re-runs skip re-streaming/re-tokenising.
+A verification gate asserts an induction head emerged (induction score >= threshold)
+before the checkpoint is saved; per-head scores are written to metrics.json.
 
-The shipped model used --tokens 500_000_000, but Arabic Wikipedia is exhausted first, so
-the actual corpus is ~338M tokens (1 epoch). The notebook's "~340M" claim refers to that.
-
-Run (GPU needs the gfx1151 masquerade):
+Run (headless, gfx1151 masquerade):
   HSA_OVERRIDE_GFX_VERSION=11.0.0 uv run --extra rocm python \
-      notebooks/education/train_stage2dash.py --tokens 500_000_000
-  # push the checkpoint to the Hub so the notebook's Colab path works (needs HF login):
-  ... --push-hub --hf-repo <user>/fanous-stage2dash-attn-only-1l
-  # quick end-to-end smoke + throughput projection:
-  ... --calibrate
+      notebooks/education/train_stage2dash2.py --bf16
+  ... --push-hub --hf-repo <user>/fanous-stage2dash2-attn-only-2l
+  ... --calibrate            # throughput projection then stop
 """
 
 from __future__ import annotations
@@ -37,6 +31,7 @@ import json
 import os
 import subprocess
 import time
+from contextlib import nullcontext
 
 import numpy as np
 import tiny
@@ -53,14 +48,19 @@ def train(args):
     device = tiny.device()
     print(f"[train] device={device}")
 
-    char_budget = args.corpus_chars or int(args.tokens * 4.2)  # ~chars/token headroom
-    text = build_corpus(char_budget, os.path.join(out, "corpus.txt"))
-    tok = train_tokenizer(text, args.vocab, os.path.join(out, "tokenizer.json"))
+    # Reuse the Stage 2dash tokenizer + corpus + token cache (identical vocab/corpus).
+    src = args.reuse_from
+    char_budget = args.corpus_chars or int(args.tokens * 4.2)
+    text = build_corpus(char_budget, os.path.join(src, "corpus.txt"))
+    tok = train_tokenizer(text, args.vocab, os.path.join(src, "tokenizer.json"))
     vocab = tok.get_vocab_size()
-    ids = tokenize(text, tok, os.path.join(out, "tokens.npy"))
+    ids = tokenize(text, tok, os.path.join(src, "tokens.npy"))
     if len(ids) > args.tokens:
         ids = ids[: args.tokens]
-    print(f"[train] training on {len(ids):,} tokens, vocab={vocab}")
+    print(f"[train] training on {len(ids):,} tokens, vocab={vocab} (reused from {src})")
+    # copy the tokenizer into the 2dash² out dir so the checkpoint is self-contained
+    import shutil
+    shutil.copy(os.path.join(src, "tokenizer.json"), os.path.join(out, "tokenizer.json"))
 
     # [N, n_ctx] batches
     n = len(ids) // args.n_ctx
@@ -68,7 +68,7 @@ def train(args):
     print(f"[train] sequences: {tuple(data.shape)}")
 
     model = tiny.make_tiny_model(
-        n_layers=1,
+        n_layers=2,
         n_heads=args.n_heads,
         d_vocab=vocab,
         n_ctx=args.n_ctx,
@@ -92,6 +92,9 @@ def train(args):
         prog = (step - warmup) / max(1, steps - warmup)
         return 0.5 * (1 + math.cos(math.pi * prog))
 
+    amp = (torch.autocast("cuda", dtype=torch.bfloat16)
+           if (args.bf16 and device == "cuda") else nullcontext())
+
     g = torch.Generator().manual_seed(tiny.DEFAULT_SEED)
     model.train()
     t0 = time.time()
@@ -103,7 +106,8 @@ def train(args):
         for pg in opt.param_groups:
             pg["lr"] = args.lr * lr_at(step)
         opt.zero_grad()
-        loss = model(batch, return_type="loss")
+        with amp:
+            loss = model(batch, return_type="loss")
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
@@ -128,12 +132,24 @@ def train(args):
             )
             return
 
+    # verification gate: assert an induction head formed before saving
+    model.eval()
+    ind = tiny.induction_scores(model)          # (n_layers, n_heads)
+    passed, layer, head = tiny.induction_gate(ind, args.induction_threshold)
+    best = float(ind.max())
+    print(f"[gate] best induction score {best:.3f} at layer {layer} head {head}")
+    if not passed:
+        raise SystemExit(
+            f"[gate] FAILED: best induction score {best:.3f} < {args.induction_threshold}. "
+            f"No induction head formed — checkpoint NOT saved.")
+    model.train()
+
     # save
     torch.save(
         {
             "state_dict": model.state_dict(),
             "config": {
-                "n_layers": 1,
+                "n_layers": 2,
                 "n_heads": args.n_heads,
                 "d_model": args.d_model,
                 "d_head": args.d_model // args.n_heads,
@@ -160,6 +176,9 @@ def train(args):
         "minutes": (time.time() - t0) / 60,
         "seed": tiny.DEFAULT_SEED,
         "commit": sha,
+        "induction_scores": ind.tolist(),
+        "best_induction_score": best,
+        "induction_head": [layer, head],
     }
     with open(os.path.join(out, "metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
@@ -189,19 +208,22 @@ def main():
         "--steps", type=int, default=0, help="override step count (0 = derive from tokens)"
     )
     p.add_argument("--corpus-chars", type=int, default=0, help="override char budget (0 = auto)")
-    p.add_argument(
-        "--out",
-        default=os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "checkpoints", "stage2dash"
-        ),
-    )
+    p.add_argument("--out", default=os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "checkpoints", "stage2dash2"))
     p.add_argument(
         "--calibrate", action="store_true", help="short run: project throughput then stop"
     )
     p.add_argument("--calibrate-steps", type=int, default=200)
     p.add_argument("--push-hub", action="store_true", help="upload checkpoint to the HF Hub (needs login)")
-    p.add_argument("--hf-repo", default="yassermakram/fanous-stage2dash-attn-only-1l",
+    p.add_argument("--hf-repo", default="yassermakram/fanous-stage2dash2-attn-only-2l",
                    help="HF repo id for --push-hub (must match HF_REPO in the notebook)")
+    p.add_argument("--bf16", action="store_true",
+                   help="bf16 autocast for the forward (params stay fp32); recommended on GPU")
+    p.add_argument("--induction-threshold", type=float, default=0.4,
+                   help="min best induction score required to save the checkpoint")
+    p.add_argument("--reuse-from", default=os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "checkpoints", "stage2dash"),
+        help="dir holding the 2dash corpus.txt / tokenizer.json / tokens.npy to reuse")
     args = p.parse_args()
     # make `import tiny` work from anywhere
     import sys
