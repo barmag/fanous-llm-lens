@@ -64,6 +64,10 @@ assets = [
     "kaleido",
 ]
 
+tokenizers = [
+    "camel-tools",
+]
+
 # PyTorch backends — pick EXACTLY ONE per machine (they conflict):
 #   uv sync --extra rocm --extra dev   # AMD Strix Halo (gfx1151)
 #   uv sync --extra cpu  --extra dev   # CPU / CI / non-AMD contributors
