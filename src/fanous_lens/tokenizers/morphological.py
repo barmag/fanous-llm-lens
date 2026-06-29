@@ -113,6 +113,30 @@ def morpheme_boundaries(text: str) -> list[int]:
     return boundaries
 
 
+def word_morph_features_batch(words: Sequence[str]) -> list[dict[str, object]]:
+    """Camel-tools morphological features per word: ``definite`` (bool), ``number``, ``pos``.
+
+    These are the **analyser's** judgements, independent of any candidate tokenizer, so they
+    are fair gold labels for the Phase A probes. ``definite`` reads the article proclitic slot
+    (``prc0 == 'Al_det'``), which correctly catches stacked proclitics like ``بالقلم``
+    (``ب+ال+قلم``); ``number`` is ``'s'`` / ``'p'`` / ``'d'`` (or ``'na'``/None).
+    """
+    out: list[dict[str, object]] = []
+    for disamb in _DISAMBIGUATOR.disambiguate(list(words)):
+        if not disamb.analyses:
+            out.append({"definite": None, "number": None, "pos": None})
+            continue
+        a = disamb.analyses[0].analysis
+        out.append(
+            {
+                "definite": a.get("prc0") == "Al_det",
+                "number": a.get("num"),
+                "pos": a.get("pos"),
+            }
+        )
+    return out
+
+
 def analyze_with_offsets(text: str) -> tuple[list[str], list[tuple[int, int]]]:
     """Surface morpheme pieces for ``text`` with their ``(start, end)`` char spans.
 

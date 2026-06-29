@@ -66,6 +66,7 @@ assets = [
 
 tokenizers = [
     "camel-tools",
+    "morfessor",  # unsupervised morphological segmentation (one of the 5 tokenizers)
 ]
 
 # PyTorch backends — pick EXACTLY ONE per machine (they conflict):
