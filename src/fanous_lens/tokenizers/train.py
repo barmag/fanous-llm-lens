@@ -68,8 +68,10 @@ def train_morfessor(corpus: list[str], vocab_size: int = 8_000) -> dict[str, Any
         word_counts.update(text.split())
 
     model = morfessor.BaselineModel()
-    # load_data expects (count, atoms) tuples; atoms are the splittable units (chars).
-    model.load_data([(count, tuple(word)) for word, count in word_counts.items()])
+    # load_data expects (count, compound_atoms) pairs. The compound must be the *string*
+    # — morfessor atomizes it into characters itself. Passing tuple(word) instead makes
+    # the model treat each pre-atomized word as unsplittable, so it never segments.
+    model.load_data([(count, word) for word, count in word_counts.items()])
     model.train_batch()
 
     morph_counts: Counter[str] = Counter()
