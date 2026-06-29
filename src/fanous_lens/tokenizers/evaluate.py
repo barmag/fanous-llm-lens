@@ -160,6 +160,53 @@ def _morph_signature(encode: Encoder, host: str, morpheme: str) -> tuple[str, ..
     return tuple(overlap)
 
 
+def register_separability(
+    encode: Encoder,
+    msa_train: list[str],
+    masri_train: list[str],
+    msa_eval: list[str],
+    masri_eval: list[str],
+) -> dict[str, float]:
+    """How accessibly does this tokenization expose the MSA-vs-Masri signal?
+
+    Represents each sentence as a bag of token ids, fits a linear classifier (logistic
+    regression) on the train split to predict register, and scores it on the **disjoint**
+    eval split. A tokenization under which the dialect signal is more linearly accessible
+    scores higher — a zero-GPU proxy for the project's north star (where does the dialect
+    signal live).
+
+    **Heavy caveat — a complement, not a verdict.** The MSA corpus is Wikipedia and the Masri
+    corpus is tweets, so this conflates *dialect* with *topic / register / lexis*: a high score
+    may reflect "Wikipedia vs Twitter vocabulary," not Egyptian morphology. Differences
+    *between tokenizers* are the only interpretable signal (same text, same topic confound),
+    and even those are weak evidence. The real dialect-localization test is the Phase A probe
+    on a balanced feature set.
+    """
+    from sklearn.feature_extraction import DictVectorizer
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import accuracy_score, roc_auc_score
+
+    def feats(sentences: list[str]) -> list[Counter]:
+        return [Counter(str(i) for i in encode(t)[0]) for t in sentences]
+
+    x_train = feats(msa_train) + feats(masri_train)
+    y_train = [0] * len(msa_train) + [1] * len(masri_train)
+    x_eval = feats(msa_eval) + feats(masri_eval)
+    y_eval = [0] * len(msa_eval) + [1] * len(masri_eval)
+
+    vec = DictVectorizer(sparse=True)
+    x_train_v = vec.fit_transform(x_train)
+    x_eval_v = vec.transform(x_eval)
+    clf = LogisticRegression(max_iter=1000)
+    clf.fit(x_train_v, y_train)
+    proba = clf.predict_proba(x_eval_v)[:, 1]
+    pred = [1 if p >= 0.5 else 0 for p in proba]
+    return {
+        "accuracy": round(accuracy_score(y_eval, pred), 3),
+        "auc": round(roc_auc_score(y_eval, proba), 3),
+    }
+
+
 def morpheme_consistency(encode: Encoder, items: list[tuple[str, list[str]]]) -> dict[str, float]:
     """Gold-free type-coherence: does a morpheme tokenize the same across host words?
 

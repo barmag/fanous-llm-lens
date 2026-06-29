@@ -22,6 +22,9 @@ We report instead:
 - **coverage** = 1 − gold-skipped/words (Masri's is lower, so its recall saw less signal).
 - **consistency** (gold-free): does a fixed morpheme tokenize the same across host words?
   ``top-share`` 1.0 / ``entropy`` 0.0 = perfectly stable → localizable feature.
+- **register separability** (sklearn): bag-of-token-ids → logistic regression predicting
+  MSA-vs-Masri on held-out text. A zero-GPU dialect-signal proxy, but **topic-confounded**
+  (Wikipedia vs tweets), so only between-tokenizer differences are weak evidence.
 
 These are diagnostics, not a verdict: whether morpheme alignment *buys* interpretability is
 a hypothesis only the Phase A probe settles. Run: ``uv run python docs/reports/compare_tokenizers.py``
@@ -34,13 +37,19 @@ import json
 import sys
 
 from fanous_lens.tokenizers.corpora import load_corpora
-from fanous_lens.tokenizers.evaluate import clitic_recall, gold_for, morpheme_consistency
+from fanous_lens.tokenizers.evaluate import (
+    clitic_recall,
+    gold_for,
+    morpheme_consistency,
+    register_separability,
+)
 from fanous_lens.tokenizers.morphological import morpheme_boundaries
 from fanous_lens.tokenizers.train import get_tokenizer, train_tokenizer
 
 APPROACHES = ["bpe", "unigram", "wordpiece", "morfessor", "morphological"]
 N_TRAIN = 3_000  # per register; 6_000 total — enough to saturate vocab_size
 N_EVAL = 200  # per register; disjoint from train
+N_SEP_TRAIN = 1_000  # per register: classifier-fit subsample for register separability
 VOCAB_SIZE = 8_000
 
 # Representative single words for the report appendix.
@@ -135,6 +144,13 @@ def main() -> None:
             r["unk_rate"] = unk_rate(enc, evals[reg], uid)
             row[reg] = r
         row["consistency"] = morpheme_consistency(enc, CONSISTENCY_ITEMS)
+        row["separability"] = register_separability(
+            enc,
+            msa_all[:N_SEP_TRAIN],
+            masri_all[:N_SEP_TRAIN],
+            evals["MSA"],
+            evals["Masri"],
+        )
         rows[a] = row
 
     hdr = (
@@ -154,6 +170,11 @@ def main() -> None:
     for a, d in rows.items():
         c = d["consistency"]
         print(f"{a:14}{c['mean_top_share']:>11}{c['mean_entropy']:>15}{c['n_morphemes']:>9}")
+
+    print(f"\n{'approach':14}{'sep-acc':>9}{'sep-auc':>9}  (MSA-vs-Masri, topic-confounded)")
+    for a, d in rows.items():
+        s = d["separability"]
+        print(f"{a:14}{s['accuracy']:>9}{s['auc']:>9}")
 
     print_examples(encoders)
     print("\nJSON:\n" + json.dumps(rows, ensure_ascii=False, indent=2))

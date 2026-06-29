@@ -14,8 +14,14 @@ from fanous_lens.tokenizers.evaluate import (
     greedy_match,
     morpheme_consistency,
     predicted_seams,
+    register_separability,
     word_starts,
 )
+
+
+def codepoint_encoder(text: str):
+    """Content-based fake encoder: one id per char = its codepoint."""
+    return [ord(c) for c in text], [(i, i + 1) for i in range(len(text))]
 
 
 def char_encoder(text: str):
@@ -110,6 +116,22 @@ def test_consistency_smeared_morpheme_has_positive_entropy():
     res = morpheme_consistency(peel_al_word, items)
     assert res["mean_top_share"] < 1.0
     assert res["mean_entropy"] > 0.0
+
+
+def test_register_separability_perfect_when_classes_use_disjoint_tokens():
+    # MSA sentences contain only 'aaaa…', Masri only 'bbbb…' → linearly separable.
+    msa = ["aaaa", "aaa", "aaaaa", "aaaa"]
+    masri = ["bbbb", "bbb", "bbbbb", "bbbb"]
+    res = register_separability(codepoint_encoder, msa, masri, msa, masri)
+    assert res["accuracy"] == 1.0
+    assert res["auc"] == 1.0
+
+
+def test_register_separability_at_chance_when_classes_are_identical():
+    # Both registers draw from the same sentences → no signal → ~chance.
+    shared = ["abab", "baba", "abba", "baab"]
+    res = register_separability(codepoint_encoder, shared, shared, shared, shared)
+    assert res["auc"] <= 0.75  # cannot beat chance meaningfully on identical features
 
 
 def test_predicted_seams_excludes_word_boundaries():

@@ -105,6 +105,25 @@ entropy 0.0 — so a high score is uninterpretable without reading fertility alo
 `morphological` is 1.0 / 0.0 because it is morpheme-based — a real property, but expected and
 not a live comparand.)
 
+**Register separability (sklearn) — a zero-GPU dialect-signal proxy, and it saturates.**
+
+| Approach | accuracy | AUC |
+|----------|---------:|----:|
+| wordpiece | 0.950 | 0.980 |
+| bpe | 0.938 | 0.969 |
+| unigram | 0.930 | 0.965 |
+| morphological | 0.927 | 0.983 |
+| morfessor | 0.907 | 0.958 |
+
+Bag-of-token-ids → logistic regression predicting MSA-vs-Masri on the held-out eval set
+(classifier fit on a 1 000 + 1 000 train subsample). **Every tokenizer separates the registers
+near-ceiling** (accuracy 0.91–0.95, AUC 0.96–0.98) and the spread is within noise. That is the
+finding: the proxy is **saturated by a topic confound** — the MSA corpus is Wikipedia and the
+Masri corpus is tweets, so "which tokenization exposes the dialect signal" is swamped by
+"which tokenization exposes Wikipedia-vs-Twitter vocabulary." It does **not** discriminate the
+tokenizers, and no ranking should be read from it. The genuine dialect-localization question
+needs the Phase A probe on a balanced, topic-controlled feature set (§6).
+
 ---
 
 ## 4. Reading the results: there is no single winner
@@ -190,6 +209,9 @@ this box) and ~5 model trainings, which is why it is staged after this cheap tie
   over-segmentation (char-level scores a perfect 1.0 / 0.0), so it cannot crown a learned
   tokenizer on its own; read it next to fertility. It also uses a curated morpheme set, so it
   is indicative, not exhaustive.
+- **Register separability is topic-confounded and saturated** — Wikipedia-vs-tweets, so it
+  measures topic as much as dialect and does not discriminate the tokenizers (§3). Reported for
+  completeness; carries no ranking weight.
 - **Scale.** 6 000 train / 200 eval-per-register — enough to saturate vocab and stabilise the
   *dominance* claim, not a production benchmark.
 
