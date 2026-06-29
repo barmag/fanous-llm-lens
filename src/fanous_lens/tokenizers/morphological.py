@@ -111,3 +111,39 @@ def morpheme_boundaries(text: str) -> list[int]:
     """
     boundaries, _, _ = morpheme_boundaries_with_coverage(text)
     return boundaries
+
+
+def analyze_with_offsets(text: str) -> tuple[list[str], list[tuple[int, int]]]:
+    """Surface morpheme pieces for ``text`` with their ``(start, end)`` char spans.
+
+    This is the encoder-facing companion to :func:`morpheme_boundaries`: it returns
+    the stripped surface pieces (markers removed) plus full spans for every piece,
+    so a morphological tokenizer can emit ids *and* offsets. A word whose stripped
+    segments fail to reconstruct the surface form (orthographic assimilation) is
+    emitted as a single whole-word token, keeping every character covered and offsets
+    exact for the words that do reconstruct.
+    """
+    words = simple_word_tokenize(text)
+    pieces: list[str] = []
+    offsets: list[tuple[int, int]] = []
+    search_from = 0
+    for word in words:
+        idx = text.find(word, search_from)
+        if idx < 0:
+            continue
+        word_start = idx
+        search_from = idx + len(word)
+
+        surface = [p for p in (_strip_markers(s) for s in _segment_word(word)) if p]
+        if "".join(surface) == word:
+            pos = word_start
+            for piece in surface:
+                pieces.append(piece)
+                offsets.append((pos, pos + len(piece)))
+                pos += len(piece)
+        else:
+            # Cannot align sub-word seams; keep the whole word as one token.
+            pieces.append(word)
+            offsets.append((word_start, word_start + len(word)))
+
+    return pieces, offsets
