@@ -171,6 +171,12 @@ def morpheme_consistency(encode: Encoder, items: list[tuple[str, list[str]]]) ->
     - ``mean_entropy`` — averaged Shannon entropy (bits) of the per-morpheme signature
       distribution. 0.0 = one signature everywhere; higher = the morpheme is smeared into
       different pieces depending on its neighbours, so a feature for it cannot be localized.
+
+    **Confounded with fertility.** Like :func:`clitic_recall`, this is maximised by
+    over-segmentation: a char-level splitter scores ``top_share=1.0, entropy=0.0`` because it
+    cuts everything the same way everywhere. The metric rewards *regularity* and cannot, alone,
+    separate "stable because morpheme-aligned" from "stable because finer-grained" — so a high
+    score is only meaningful read next to fertility.
     """
     top_shares: list[float] = []
     entropies: list[float] = []

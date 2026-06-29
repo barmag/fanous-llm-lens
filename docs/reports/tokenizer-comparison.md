@@ -99,8 +99,11 @@ splitting the gold can't judge).
 
 (Five shared morphemes: `ال`, `و`, `ب`, `كتاب`, `بيت`, across curated host words. `top-share`
 = fraction of hosts where the morpheme takes its single most-common tokenization; `entropy` =
-spread of its tokenizations. Stable = localizable feature. `morphological` is 1.0/0.0 because
-it is morpheme-based — a real property, but expected, so it is bracketed too.)
+spread of its tokenizations. **Confounded with fertility:** consistency is maximised by *both*
+morpheme alignment *and* over-segmentation — a char-level splitter scores top-share 1.0 /
+entropy 0.0 — so a high score is uninterpretable without reading fertility alongside (§4).
+`morphological` is 1.0 / 0.0 because it is morpheme-based — a real property, but expected and
+not a live comparand.)
 
 ---
 
@@ -108,23 +111,33 @@ it is morpheme-based — a real property, but expected, so it is bracketed too.)
 
 The two honest diagnostics **point in different directions**, and that is the finding:
 
-- **Recall at fertility.** unigram has the highest raw recall (0.49 MSA) but pays the most
-  fertility (1.92) and cuts 69 % beyond the gold — it catches clitics largely by cutting a
-  lot. morfessor recovers nearly as many clitics (0.38) at the **lowest fertility** (1.56)
-  and the **lowest beyond-gold rate** (56 %), so its cuts coincide with real clitics more
-  often per cut. bpe is middling; wordpiece is weakest. On *efficiency of clitic recovery*,
-  morfessor looks best of the learned four.
-- **Consistency.** But unigram is the **most stable** learned tokenizer (top-share 0.66,
-  entropy 1.10) — a shared morpheme lands on the same token more often than under morfessor
-  (0.50 / 1.61) or bpe/wordpiece (0.32 / 2.04). On *localizability*, unigram looks best.
+- **Recall at fertility (the de-confounded axis).** unigram has the highest raw recall (0.49
+  MSA) but pays the most fertility (1.92) and cuts 69 % beyond the gold — it catches clitics
+  largely by cutting a lot. morfessor recovers nearly as many clitics (0.38) at the **lowest
+  fertility** (1.56) and the **lowest beyond-gold rate** (56 %), so its cuts coincide with
+  real clitics more often per cut. bpe is middling; wordpiece is weakest. On *efficiency of
+  clitic recovery*, morfessor leads the learned four — and this is the one axis where
+  over-segmentation is explicitly controlled for.
+- **Consistency — confounded, do not over-read.** unigram has the highest learned consistency
+  (top-share 0.66, entropy 1.10) vs morfessor (0.50 / 1.61) and bpe/wordpiece (0.32 / 2.04).
+  But **consistency is maximised by over-segmentation as surely as recall is**: a char-level
+  splitter scores top-share 1.0 / entropy 0.0 (it is asserted in the test suite). The metric
+  rewards *regularity* and cannot, alone, separate "stable because morpheme-aligned" from
+  "stable because finer-grained" — and unigram is exactly the highest-fertility learned
+  tokenizer. So its consistency lead is **not** a clean localizability win; it is entangled
+  with the same splitting axis. (The bpe == wordpiece *exact* tie, 0.323 / 2.04, confirms the
+  measure is coarse on this morpheme set — both keep these words whole.) Read consistency only
+  next to fertility.
 
-So **recall-at-fertility favours morfessor; consistency favours unigram.** Nothing here
-adjudicates which property matters more for interpretability — that is precisely the
-hypothesis the Phase A probe exists to settle (§6). Reporting a single ranking would
-manufacture a verdict the evidence does not support.
+So the only de-confounded comparison, recall-at-fertility, **favours morfessor**; consistency
+is currently **too entangled to adjudicate** localizability. Either way, nothing here settles
+which property matters for interpretability — that is the hypothesis the Phase A probe exists
+to test (§6). Reporting a single ranking would manufacture a verdict the evidence does not
+support.
 
-What *is* robust: **bpe and wordpiece are dominated** — lower recall-per-fertility *and*
-lower consistency than the alternatives, in both registers.
+What *is* robust: **bpe and wordpiece are dominated** — morfessor beats both on
+recall-per-fertility *and* consistency, and bpe beats wordpiece on recall-at-fertility, in
+both registers.
 
 ---
 
@@ -173,7 +186,10 @@ this box) and ~5 model trainings, which is why it is staged after this cheap tie
 - **Clitic-level, not inflectional.** "Recall" is clitic-boundary recall; the gold does not
   mark stem-internal inflection, so neither does this metric.
 - **morfessor is mildly non-deterministic** (±0.01 on recall between runs); does not change §4.
-- **Consistency uses a curated morpheme set**, so it is indicative, not exhaustive.
+- **Consistency is confounded with fertility** — maximised by both alignment and
+  over-segmentation (char-level scores a perfect 1.0 / 0.0), so it cannot crown a learned
+  tokenizer on its own; read it next to fertility. It also uses a curated morpheme set, so it
+  is indicative, not exhaustive.
 - **Scale.** 6 000 train / 200 eval-per-register — enough to saturate vocab and stabilise the
   *dominance* claim, not a production benchmark.
 
