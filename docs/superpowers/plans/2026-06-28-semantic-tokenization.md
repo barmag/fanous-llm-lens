@@ -605,9 +605,27 @@ cd /home/yassermakram/code/fanous-llm-lens && git add src/fanous_lens/tokenizers
 - Consumes: `train_tokenizer`, `get_tokenizer`, `analyze_morphology`
 - Produces: `evaluate_tokenizer(tokenize_fn, test_sentences, gold_morphs) -> dict`, `compute_morpheme_alignment(tokenize_fn, morph_boundaries) -> dict`, `compute_concept_consistency(tokenize_fn, feature_patterns) -> dict`
 
-> **REVISION (binding) — Bugs 1+2.** The draft metrics derive token boundaries from token
-> *count* (`len(text)*i//len(tokens)`) and proportional position mapping. Delete that
-> approach entirely — it makes the metric blind to where tokens actually split. Instead:
+> **REVISION 2 (binding, 2026-06-29) — drop precision/F1 entirely; this SUPERSEDES the
+> precision/F1 parts below.** A deeper flaw than Bug 2: the gold marks **clitics only** (not
+> inflection — `يذهبون` stays whole) and is weak on Masri, so against this **incomplete** gold
+> **precision is unmeasurable** — a boundary where the gold is silent is indistinguishable from
+> a true one it missed. An F1 then rewards agreement with the gold's blind spots, and
+> `morphological` scores 1.0 by tautology. Morpheme alignment is a **hypothesis** (does it buy
+> interpretability?), settled only by the Phase A probe — not a verdict.
+> **As-built `evaluate.py`** (commit `84eff21`):
+> - `clitic_recall(encode, sentences, golds)` → recall of confident clitic boundaries **+
+>   fertility** (recall alone is gamed by over-segmentation) **+ `beyond_gold_rate`**
+>   (descriptive: cuts where the gold is silent, never scored as error) **+ coverage**.
+>   **No precision, no F1.**
+> - `morpheme_consistency(encode, items)` → gold-free `top-share` / `entropy` localizability.
+> - Tests use controlled **fake encoders** for exact metric-math assertions (not mocks that
+>   only line up by token count). The mock-based draft tests below are obsolete.
+> See `docs/reports/tokenizer-comparison.md` for the reframe and results.
+>
+> **REVISION (binding) — Bugs 1+2 (mechanism, still applies to recall).** The draft metrics
+> derive token boundaries from token *count* (`len(text)*i//len(tokens)`) and proportional
+> position mapping. Delete that approach entirely — it makes the metric blind to where tokens
+> actually split. Instead:
 > - `compute_morpheme_alignment` consumes the **offset-capable encoder** from Task 2.
 >   Token boundaries = the `end` (equivalently interior `start`) offsets from
 >   `encode(text)`, **filtered to intra-word seams** (drop any boundary that lands on/at a

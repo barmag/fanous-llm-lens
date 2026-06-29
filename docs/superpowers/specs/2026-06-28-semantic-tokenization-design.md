@@ -45,22 +45,41 @@ Build and systematically compare 5 tokenization approaches on their ability to p
 
 ### Evaluation framework
 
-**Metric 1: Morpheme boundary precision & recall**
-- Gold standard: camel-tools morphological segmentation on a held-out test set of 500 MSA sentences + 500 Masri sentences
-- For each tokenizer, measure: what fraction of token boundaries coincide with morpheme boundaries?
-- Report precision, recall, F1 by register (MSA, Masri)
+> **Revised 2026-06-29 (binding).** The original framework treated morpheme-alignment **F1**
+> as the headline fitness score. That is unsound and has been removed. The gold (camel-tools
+> `calima-msa-r13`, `d3tok`) marks **clitics only** — not inflection (it leaves `يذهبون` whole,
+> not `يذهب`+`ون`) — and is weak on Masri. Against an **incomplete** gold **precision is
+> unmeasurable**: a boundary placed where the gold is silent is indistinguishable from a true
+> boundary the gold missed, so any F1 rewards agreement with the gold's blind spots and the
+> `morphological` tokenizer (whose vocab *is* the gold) scores 1.0 by tautology. Phase B is a
+> **cheap CPU diagnostic tier**, not a verdict; the verdict is Phase A's probe (see "Phase
+> relationship" below). Implemented in `tokenizers/evaluate.py`; reproduced by
+> `docs/reports/compare_tokenizers.py`; written up in `docs/reports/tokenizer-comparison.md`.
 
-**Metric 2: Token-level concept consistency**
-- Define 10 linguistic features: negation, future, past-tense, plural, feminine, possessive, 1sg pronoun, 2sg pronoun, wh-question, progressive aspect
-- For each feature, measure: across all occurrences, how often does the feature map to the same token(s)?
-- High consistency → the feature is reliably represented at a predictable token position → good for probing
+**Metric 1: Clitic boundary recall — reported WITH fertility (no precision, no F1)**
+- Gold: camel-tools `d3tok` clitic boundaries, restricted to words it can reconstruct, on a
+  held-out set of MSA + Masri sentences. Recall only: *of the boundaries the gold is sure
+  exist, how many did the tokenizer place?* (greedy one-to-one, ±1 char).
+- **Always paired with fertility** (tokens/word): recall alone is gamed by over-segmentation
+  (char-level scores 1.0). Also report `beyond-gold rate` — share of intra-word cuts where the
+  gold is silent — as a *descriptor*, never as error (it is often correct inflection/dialect).
+- Report per register (MSA, Masri); never average. Masri recall is a **lower bound** (partial
+  gold); always cite coverage with it.
 
-**Metric 3: Token-count efficiency**
-- Mean tokens per triple on the 30 MSA/Masri minimal pairs (reuse notebook 01 framework)
-- Lower is better (but secondary to alignment metrics)
+**Metric 2: Morpheme consistency (gold-free) — the localizability signal**
+- For a set of shared morphemes, measure across host words how often the morpheme maps to the
+  same token(s): `top-share` (↑) and signature `entropy` in bits (↓).
+- High consistency → the morpheme is at a predictable, stable token position → a feature for it
+  can be **localized**, which is the actual interpretability question. Gold supplies the
+  *list* of morphemes, not the scoring, so this is not bottlenecked by the gold's completeness.
 
-**Metric 4: OOV rate**
-- Fraction of tokens in held-out text that appear <2 times in training corpus. Lower is better.
+**Metric 3: Token-count efficiency (fertility)**
+- Mean tokens per word, per register. Reported alongside recall (Metric 1) so over-segmentation
+  is always visible; not a standalone "lower is better".
+
+**Metric 4: OOV / UNK rate**
+- Fraction of emitted ids that are `[UNK]` on held-out text, per register. Note: for the
+  per-piece encoders (morfessor, morphological) UNK is *independent* of fertility.
 
 ### Corpus
 - **MSA:** Wikipedia 20231101.ar (~600k articles, ~400M tokens) — from Stage 1b
@@ -68,9 +87,15 @@ Build and systematically compare 5 tokenization approaches on their ability to p
 - **Test set:** 30 minimal pairs (existing) + 500 MSA sentences (held-out Wikipedia) + 500 Masri sentences (held-out tweets)
 
 ### Deliverables
-1. A comparison table: tokenizer × metric × register
+1. A comparison table: tokenizer × diagnostic × register (recall+fertility, beyond-gold, consistency, UNK)
 2. Per-tokenizer visualization: token boundaries on a few example sentences, color-coded by linguistic feature
-3. Recommendation: which tokenizer(s) to take into Phase A
+3. A **shortlist (not a winner)**: rule out dominated tokenizers; carry the rest into Phase A. Phase B can *eliminate*, not *crown* — the diagnostics legitimately disagree (e.g. recall-at-fertility vs consistency), and only the probe resolves which property matters.
+
+### Phase relationship (binding)
+Morpheme alignment is a **hypothesis**, not the definition of fitness: BPE may never split `ال`
+yet leave a model perfectly probeable for definiteness. So **Phase A's probe is the primary
+fitness judge**; Phase B is the cheap CPU pre-filter that narrows the field and surfaces
+tensions. Do not present any Phase B number as the verdict.
 
 ## Phase A: Embeddings-Only Model Training
 
@@ -131,6 +156,16 @@ Key dependencies:
 
 ## Success criteria
 
-- Phase B produces a clear ranking: morphological-aware ≥ Unigram ≥ WordPiece ≥ Morfessor ≥ BPE on morpheme alignment F1
-- Phase A shows that the morphological-aware tokenizer yields higher probe accuracy for at least 5 of 10 linguistic features compared to BPE, with AUC improvement >0.1
-- The experiment is reproducible in <30 min on the Strix Halo iGPU
+> Revised 2026-06-29: the old criterion ("Phase B produces a clear ranking on morpheme
+> alignment F1") presumed both the unsound F1 and that morphological would win it. Replaced.
+
+- **Phase B (CPU diagnostic):** produces honest per-register diagnostics (clitic recall +
+  fertility, beyond-gold, consistency, UNK) and a defensible **shortlist** — at minimum it
+  rules out dominated tokenizers. It is *not* expected to crown a winner; the recall-vs-consistency
+  disagreement is an accepted, documented outcome. *(Met: bpe/wordpiece shown dominated;
+  morfessor leads recall-at-fertility, unigram leads consistency — see `tokenizer-comparison.md`.)*
+- **Phase A (probe, the verdict):** for the shortlisted tokenizers, report probe AUC per
+  feature per tokenizer with control probes at chance. The success bar is a **clear,
+  feature-localized separation** for at least one shortlisted tokenizer over BPE on ≥5 of 10
+  features (AUC Δ > 0.1) — *or*, equally publishable, the null result that alignment does **not**
+  improve probe accuracy (which would refute the morpheme-alignment hypothesis cleanly).
