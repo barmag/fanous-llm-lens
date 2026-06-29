@@ -30,13 +30,17 @@ corpus reproduces the table. Run:  ``uv run python docs/reports/compare_tokenize
 
 from __future__ import annotations
 
+import itertools
 import json
 import sys
 
 from camel_tools.tokenizers.word import simple_word_tokenize
 
 from fanous_lens.tokenizers.corpora import load_corpora
-from fanous_lens.tokenizers.morphological import morpheme_boundaries_with_coverage
+from fanous_lens.tokenizers.morphological import (
+    morpheme_boundaries,
+    morpheme_boundaries_with_coverage,
+)
 from fanous_lens.tokenizers.train import get_tokenizer, train_tokenizer
 
 APPROACHES = ["bpe", "unigram", "wordpiece", "morfessor", "morphological"]
@@ -44,6 +48,20 @@ N_TRAIN = 3_000  # per register; 6_000 total — enough to saturate vocab_size
 N_EVAL = 200  # per register; disjoint from train
 VOCAB_SIZE = 8_000
 TOLERANCE = 1  # ±1 surface char when matching a predicted seam to a gold seam
+
+# Representative single words for the report appendix: clitic-heavy MSA, shared-clitic
+# Masri, and Masri-specific morphology the MSA gold cannot mark.
+EXAMPLE_WORDS = [
+    ("MSA", "وسيذهبون", "wa-sa-yaḏhabūn · and they will go"),
+    ("MSA", "بالقلم", "bi-l-qalam · with the pen"),
+    ("MSA", "كتبها", "katab-hā · he wrote it"),
+    ("MSA", "المدرسة", "al-madrasa · the school"),
+    ("Masri", "كتابه", "kitāb-u · his book (shared enclitic)"),
+    ("Masri", "بالعربية", "bi-l-ʿarabiyya · by car (shared proclitics)"),
+    ("Masri", "بيكتب", "bi-yiktib · he is writing (progressive بـ)"),
+    ("Masri", "هيروح", "ha-yrūḥ · he will go (future هـ)"),
+    ("Masri", "بتاعنا", "bitāʿ-na · ours (analytic possessive)"),
+]
 
 
 def realized_vocab(approach: str, config: dict) -> int:
@@ -146,6 +164,27 @@ def eval_register(encode, sentences, gold, unk_id) -> dict:
     }
 
 
+def segmentation(encode, word: str) -> str:
+    """Render a tokenizer's segmentation of one word as middot-joined pieces."""
+    _ids, offsets = encode(word)
+    return "·".join(word[s:e] for s, e in offsets)
+
+
+def gold_segmentation(word: str) -> str:
+    """Render the gold morpheme split of one word (whole word if the gold skips it)."""
+    cuts = [0, *morpheme_boundaries(word), len(word)]
+    return "·".join(word[a:b] for a, b in itertools.pairwise(cuts))
+
+
+def print_examples(encoders: dict) -> None:
+    print("\n=== APPENDIX: representative segmentations ===")
+    for reg, word, gloss in EXAMPLE_WORDS:
+        print(f"\n{reg}: {word}  — {gloss}")
+        print(f"  {'gold':13}: {gold_segmentation(word)}")
+        for a in APPROACHES:
+            print(f"  {a:13}: {segmentation(encoders[a], word)}")
+
+
 def main() -> None:
     msa_all, masri_all = load_corpora(max_msa=N_TRAIN + N_EVAL, max_masri=N_TRAIN + N_EVAL)
     msa_eval = msa_all[N_TRAIN : N_TRAIN + N_EVAL]
@@ -159,10 +198,12 @@ def main() -> None:
     evals = {"MSA": msa_eval, "Masri": masri_eval}
 
     rows: dict[str, dict] = {}
+    encoders: dict = {}
     for a in APPROACHES:
         print(f"training {a} ...", file=sys.stderr, flush=True)
         cfg = train_tokenizer(a, train_corpus, vocab_size=VOCAB_SIZE)
         enc = get_tokenizer(a, cfg)
+        encoders[a] = enc
         uid = unk_id_of(a, cfg)
         rows[a] = {
             "vocab": realized_vocab(a, cfg),
@@ -179,6 +220,7 @@ def main() -> None:
                 f"{a:14}{d['vocab']:>7}{reg:>7}{m['fertility']:>7}{m['unk_rate'] * 100:>7.2f}"
                 f"{m['precision']:>7}{m['recall']:>7}{m['f1']:>7}{m['gold_seams']:>7}{m['coverage']:>7}"
             )
+    print_examples(encoders)
     print("\nJSON:\n" + json.dumps(rows, ensure_ascii=False, indent=2))
 
 

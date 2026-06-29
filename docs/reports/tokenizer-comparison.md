@@ -135,5 +135,57 @@ uv run python docs/reports/compare_tokenizers.py
 ```
 
 Datasets are cached under `~/.cache/huggingface`; the run trains all five tokenizers and
-prints the table in §1 plus a JSON dump. The HF trainers and camel-tools are deterministic;
-morfessor varies by ≈±0.01 F1 (§5).
+prints the table in §1, the appendix below, plus a JSON dump. The HF trainers and camel-tools
+are deterministic; morfessor varies by ≈±0.01 F1 (§5).
+
+---
+
+## Appendix — representative segmentations
+
+Each cell is one tokenizer's split of the word, pieces joined by `·`. The same trained
+tokenizers as §1; the driver prints this verbatim under "APPENDIX". Pieces read
+right-to-left (index 0 = rightmost glyph). `gold` is the camel-tools morpheme target — a
+whole word (no `·`) means the gold marks no intra-word seam there.
+
+**MSA — the gold's native register**
+
+| word · gloss | gold | bpe | unigram | wordpiece | morfessor | morphological |
+|---|---|---|---|---|---|---|
+| وسيذهبون · and they will go | و·س·يذهبون | وسي·ذهب·ون | و·سي·ذه·ب·ون | وسي·ذهب·ون | وس·يذهب·ون | و·س·يذهبون |
+| بالقلم · with the pen | ب·ال·قلم | بالق·لم | بال·ق·لم | بالق·لم | بالقلم | ب·ال·قلم |
+| كتبها · he wrote it | كتب·ها | كتبها | كتب·ها | كتب·ها | كتبها | كتب·ها |
+| المدرسة · the school | ال·مدرسة | المدرسة | المدرس·ة | المدرسة | المدرسة | ال·مدرسة |
+
+**Masri — Egyptian**
+
+| word · gloss | gold | bpe | unigram | wordpiece | morfessor | morphological |
+|---|---|---|---|---|---|---|
+| كتابه · his book (shared enclitic) | كتاب·ه | كتابه | كتابه | كتابه | كتابه | كتاب·ه |
+| بالعربية · by car (shared proclitics) | ب·ال·عربية | ب·العربية | ب·العربية | بالع·ربية | ب·العربية | ب·ال·عربية |
+| بيكتب · he is writing (progressive بـ) | بيكتب | بي·كتب | ب·يكتب | بيك·ت·ب | بيكتب | بيكتب |
+| هيروح · he will go (future هـ) | هيروح | هير·وح | ه·يروح | هير·وح | ه·يروح | هيروح |
+| بتاعنا · ours (analytic possessive) | بتاعنا | بتاع·نا | بتاع·نا | بتاع·نا | بتاعنا | بتاعنا |
+
+**What these show (and why they back the numbers):**
+
+1. **`morphological` reproduces the gold exactly** on every MSA row — it *is* the gold's
+   segmenter, which is why its F1 = 1.0 and why it is excluded from the ranking (§1).
+2. **morfessor wins on aggregate, not on every word.** It keeps short clitic words whole
+   (`بالقلم`, `المدرسة`, `كتبها`) because its MDL stores a frequent short word more cheaply
+   than splitting it — yet on the long `وسيذهبون` it lands closest of the learned tokenizers
+   (`وس·يذهب·ون`). Its precision edge in §1 is earned across many words, not by peeling every
+   clitic.
+3. **Partial alignment on stacked proclitics.** On `بالعربية` (gold `ب·ال·عربية`),
+   bpe/unigram/morfessor peel the preposition `ب` but stop, missing the article `ال`; only
+   `morphological` recovers both seams. This half-credit is exactly what pins the learned
+   tokenizers' recall below 1.0.
+4. **unigram visibly over-segments** (`و·سي·ذه·ب·ون`, `بيك·ت·ب`) — the concrete face of its
+   high fertility / high recall / low precision profile (§2).
+5. **The partial-gold penalty, made visible (the key caveat from §4).** On `بيكتب`,
+   `هيروح`, `بتاعنا` the gold marks **no seam** — the MSA database cannot analyse the Masri
+   progressive `بـ`, future `هـ`, or possessive `بتاع`. Yet bpe splits `بي·كتب`, morfessor
+   splits `ه·يروح`, and bpe/unigram/wordpiece all split `بتاع·نا` — arguably the *correct*
+   Masri morpheme cuts. Because the gold has nothing to match, these land as false positives
+   (or simply earn no credit), pushing **Masri precision down for doing the right thing**.
+   This is the visual proof that the Masri F1 in §1 is a **lower bound**, not a verdict on
+   the tokenizers.
