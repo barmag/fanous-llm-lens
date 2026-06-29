@@ -9,7 +9,7 @@ from datasets import load_dataset
 CACHE_DIR = Path.home() / ".cache" / "fanous-lens" / "datasets"
 
 
-def _load_wikipedia() -> list[str]:
+def _load_wikipedia(max_sentences: int = 50_000) -> list[str]:
     """Load MSA Wikipedia articles, return a list of sentences."""
     ds = load_dataset(
         "wikimedia/wikipedia",
@@ -26,12 +26,14 @@ def _load_wikipedia() -> list[str]:
             stripped = line.strip()
             if stripped and len(stripped) > 20:
                 sentences.append(stripped)
-        if i >= 50_000:
+                if len(sentences) >= max_sentences:
+                    break
+        if len(sentences) >= max_sentences or i >= 50_000:
             break
     return sentences
 
 
-def _load_tweets_dialects(dialect: str = "EG") -> list[str]:
+def _load_tweets_dialects(dialect: str = "EG", max_sentences: int = 50_000) -> list[str]:
     """Load Egyptian-dialect tweets."""
     ds = load_dataset(
         "amgadhasan/arabic_tweets_dialects",
@@ -45,7 +47,9 @@ def _load_tweets_dialects(dialect: str = "EG") -> list[str]:
             text = row["text"].strip()
             if text and len(text) > 10:
                 sentences.append(text)
-        if i >= 100_000:
+                if len(sentences) >= max_sentences:
+                    break
+        if len(sentences) >= max_sentences or i >= 100_000:
             break
     return sentences
 
@@ -55,6 +59,6 @@ def load_corpora(
     max_masri: int = 50_000,
 ) -> tuple[list[str], list[str]]:
     """Return (msa_sentences, masri_sentences) lists."""
-    msa = _load_wikipedia()[:max_msa]
-    masri = _load_tweets_dialects("EG")[:max_masri]
+    msa = _load_wikipedia(max_msa)
+    masri = _load_tweets_dialects("EG", max_masri)
     return msa, masri
