@@ -1,151 +1,201 @@
 # Tokenizer Comparison — five approaches on MSA vs Masri
 
 **Driver:** [`docs/reports/compare_tokenizers.py`](compare_tokenizers.py)
-**Module:** [`src/fanous_lens/tokenizers/train.py`](../../src/fanous_lens/tokenizers/train.py)
+**Metrics:** [`src/fanous_lens/tokenizers/evaluate.py`](../../src/fanous_lens/tokenizers/evaluate.py)
 **Gold:** [`src/fanous_lens/tokenizers/morphological.py`](../../src/fanous_lens/tokenizers/morphological.py) — see [the gold-standard analysis](morphological-gold-standard-analysis.md)
-**Date:** 2026-06-29 · **Commit:** `d0bc898`
+**Date:** 2026-06-29 · **Commit:** `84eff21`
 **Stack:** HuggingFace `tokenizers` · `morfessor` 2.0.6 · camel-tools 1.6.0 (`calima-msa-r13`, `d3tok`)
+
+> **Supersedes an earlier draft of this report** that ranked the tokenizers by a
+> morpheme-alignment **F1**. That F1 was unsound (§2): against an incomplete gold you
+> cannot measure precision, so the F1 rewarded agreement with the gold's blind spots and the
+> `morphological` tokenizer scored 1.0 by tautology. This version reports only what the gold
+> can honestly support — **clitic recall paired with fertility** — plus a **gold-free
+> consistency** signal, and reframes morpheme alignment as a *hypothesis to be tested in
+> Phase A*, not a verdict.
 
 **Setup:** trained on **6 000** sentences (3 000 MSA Wikipedia + 3 000 Egyptian tweets),
 evaluated on a **disjoint** held-out set of **200 MSA + 200 Masri** sentences, `vocab_size=8 000`.
 All five tokenizers realize the full 8 000-entry vocab, so fertility is compared at parity.
 
-> Arabic renders right-to-left; seam offsets are in *logical* (reading) order, so index 0
-> is the rightmost glyph. Metrics are reported **per register and never averaged** — the
-> two registers are measured against golds of different completeness (see §4).
+> Arabic renders right-to-left; offsets are in *logical* (reading) order, so index 0 is the
+> rightmost glyph. Metrics are reported **per register and never averaged** — the two
+> registers are measured against golds of different completeness (§5).
 
 ---
 
-## 1. Results
+## 1. What "fitness for interpretability" means here
 
-| Approach | reg | vocab | fertility | UNK % | precision | recall | **F1** | gold seams | coverage |
-|----------|-----|------:|----------:|------:|----------:|-------:|-------:|-----------:|---------:|
-| bpe | MSA | 8000 | 1.68 | 0.09 | 0.302 | 0.333 | **0.317** | 3845 | 0.919 |
-| bpe | Masri | 8000 | 1.81 | 0.02 | 0.178 | 0.354 | **0.237** | 1312 | 0.857 |
-| unigram | MSA | 8000 | 1.92 | 0.08 | 0.306 | 0.485 | **0.376** | 3845 | 0.919 |
-| unigram | Masri | 8000 | 2.07 | 0.02 | 0.200 | 0.508 | **0.287** | 1312 | 0.857 |
-| wordpiece | MSA | 8000 | 1.72 | 0.09 | 0.235 | 0.280 | **0.256** | 3845 | 0.919 |
-| wordpiece | Masri | 8000 | 1.88 | 0.08 | 0.146 | 0.319 | **0.200** | 1312 | 0.857 |
-| **morfessor** | MSA | 8000 | 1.56 | 8.0 | 0.444 | 0.383 | **0.411** | 3845 | 0.919 |
-| **morfessor** | Masri | 8000 | 1.58 | 10.6 | 0.296 | 0.399 | **0.340** | 1312 | 0.857 |
-| _morphological_ ⁰ | MSA | 8000 | 1.52 | 15.6 | 1.000 | 1.000 | _1.000_ | 3845 | 0.919 |
-| _morphological_ ⁰ | Masri | 8000 | 1.48 | 20.6 | 1.000 | 1.000 | _1.000_ | 1312 | 0.857 |
+The project's goal is mechanistic interpretability of MSA-vs-Masri structure in small
+models. So the question is **not** "does this tokenizer match a linguist's segmentation" but:
 
-⁰ **Oracle — excluded from the alignment ranking.** Its vocab is built from the *same*
-camel-tools segmentation as the gold, so it scores F1 = 1.0 by construction. It is shown
-only as the ceiling, and remains a fair comparand on fertility / UNK (§3).
+> Under this tokenization, can linguistic structure be **recovered**, **localized** to few
+> stable tokens, and **compared across registers** — *inside the model*?
 
-**Morpheme-alignment ranking (learned tokenizers, both registers):**
-**morfessor ▸ unigram ▸ bpe ▸ wordpiece** — stable across MSA and Masri.
+That terminal question is answered by **probing a trained model** (Phase A), not by comparing
+token boundaries to a reference. Boundary comparison is a cheap *proxy*, and a leaky one —
+which is the whole point of §2. This report is the **cheap CPU tier** that runs before the
+probe; it deliberately avoids any metric that pretends to be the verdict.
 
 ---
 
-## 2. Headline: unsupervised morphology beats raw subword tokenization
+## 2. Why there is no precision or F1 here
 
-Among the four *learned* tokenizers, **morfessor wins morpheme alignment in both
-registers** (MSA F1 0.41, Masri 0.34) and does so with the **highest precision** — when it
-places a seam, it lands on a true morpheme boundary far more often than BPE/unigram/wordpiece.
-This is the expected result, and it is the point of the comparison: a tokenizer that models
-morphology, even unsupervised and MDL-driven, segments Arabic closer to its morphemes than
-frequency-only subword merging.
+The gold ([analysis](morphological-gold-standard-analysis.md)) runs on an **MSA** database
+and marks **clitic** boundaries only. It does **not** mark inflection — it leaves `يذهبون`
+whole rather than `يذهب`+`ون` — and it is weak on Masri.
 
-The three statistical subword tokenizers split on corpus frequency, not morphology, so they
-hit morpheme seams only incidentally:
+Against such an **incomplete** gold, **precision is unmeasurable**: a boundary a tokenizer
+places where the gold is silent is *indistinguishable from a true boundary the gold simply
+missed*. `يذهب·ون` is exactly that — a tokenizer that correctly splits the plural suffix is
+scored as a **false positive**. So:
 
-- **unigram** has the **highest recall** (MSA 0.49) but low precision (0.31) — it
-  over-segments (fertility 1.9–2.1, the highest of all five), so it catches many true seams
-  simply by cutting often, while also producing many spurious cuts.
-- **bpe** sits in the middle on every axis.
-- **wordpiece** is weakest on alignment in both registers (MSA F1 0.26, Masri 0.20).
+- any **F1** built on that precision rewards *agreement with the gold's blind spots*, and is
+  **anti-aligned with quality** precisely in the morphologically-rich cases interpretability
+  cares about;
+- `morphological`'s perfect score is a **tautology** — its vocab *is* the gold's segmenter,
+  so it agrees with the gold by construction. It is the gold in a mirror, not a ceiling.
 
----
-
-## 3. Fertility and UNK are two separate facts
-
-Fertility (tokens/word) and the UNK rate measure different things, and whether they interact
-depends on the encoder:
-
-- **Subword tokenizers** have near-zero UNK (≤0.1 %) — byte/char fallback means they can
-  encode anything — so their fertility is honest. The one way UNK *could* inflate apparent
-  efficiency (an out-of-vocab whole word collapsing to a single `[UNK]` token) does not bite
-  here, because their UNK is essentially zero. unigram's low fertility-efficiency claim is
-  real but bought with over-segmentation (fertility 1.9–2.1), not coverage loss.
-- **morfessor** carries **8–11 % UNK**: its vocabulary is 8 000 learned morphs, and an
-  out-of-vocabulary morph becomes `[UNK]`. But its encoder emits **one id per morph**, so the
-  UNK rate does *not* change its fertility (≈1.56) — the two are independent. The 8–11 % is a
-  separate fact: that fraction of morphs is information lost, not efficiency gained.
-- **morphological** carries the **most UNK (16–21 %)** and the **lowest fertility** (1.48–1.52),
-  but these are unrelated. The low fertility is because camel-tools cuts only at *clitic*
-  boundaries (conservative segmentation, §5), so it produces few pieces per word. The high
-  UNK is a separate property of an 8 000-entry surface-piece vocab that misses rare stems.
-  Same one-id-per-piece encoder, so fertility ⊥ UNK here too.
-
-The takeaway is not "high UNK inflates fertility" (it doesn't, for the morph encoders) but
-that the morph-based tokenizers lose real information to `[UNK]` at this vocab size — which is
-a downstream-model problem, addressed in the Phase A note below, not a fertility artifact.
-
-**Implication for Phase A.** If a tokenizer feeds an embeddings-only probe model, morfessor
-and morphological would need a larger vocab (or subword backoff) to bring UNK down before
-their alignment advantage translates into a usable model.
+The one directionally-honest boundary number is **recall**: *of the clitic boundaries the
+gold is sure exist, how many did the tokenizer place?* It never penalises a tokenizer for
+splitting inflection or Masri morphology the gold cannot see. But **recall alone is gamed by
+over-segmentation** (a char-level splitter scores 1.0 by cutting everywhere), so it is honest
+**only read next to fertility**.
 
 ---
 
-## 4. The MSA → Masri gap is real *and* partly an artifact of the gold
+## 3. Results
 
-**Every** tokenizer scores lower on Masri than MSA. Two effects compound, and the report
-must not collapse them:
+**Clitic recall — read across the row with fertility, never alone.**
 
-1. **Genuine difficulty.** Egyptian tweets carry Masri-specific morphology (progressive
-   `بـ`, future `هـ`, analytic possessive `بتاع`) and noisier orthography; the subword
-   tokenizers, trained on a corpus that is half MSA, model it less well.
-2. **A partial gold.** The gold runs on `calima-msa-r13`, an **MSA** database. On Masri it
-   segments only the clitics it shares with MSA and **skips more words** — coverage drops
-   to **0.857** (vs 0.919 for MSA) and the seam denominator falls from 3845 to 1312. So the
-   Masri F1 is scored against fewer, easier seams: it is a **lower bound** on true Masri
-   alignment quality, not a like-for-like number.
+| Approach | reg | vocab | fertility | UNK % | **clitic recall** | beyond-gold % | gold seams | coverage |
+|----------|-----|------:|----------:|------:|------------------:|--------------:|-----------:|---------:|
+| bpe | MSA | 8000 | 1.68 | 0.1 | 0.333 | 70 | 3845 | 0.919 |
+| bpe | Masri | 8000 | 1.81 | 0.0 | 0.354 | 82 | 1312 | 0.857 |
+| unigram | MSA | 8000 | 1.92 | 0.1 | **0.485** | 69 | 3845 | 0.919 |
+| unigram | Masri | 8000 | 2.07 | 0.0 | **0.508** | 80 | 1312 | 0.857 |
+| wordpiece | MSA | 8000 | 1.72 | 0.1 | 0.280 | 76 | 3845 | 0.919 |
+| wordpiece | Masri | 8000 | 1.88 | 0.1 | 0.319 | 85 | 1312 | 0.857 |
+| morfessor | MSA | 8000 | 1.56 | 8.0 | 0.380 | 56 | 3845 | 0.919 |
+| morfessor | Masri | 8000 | 1.58 | 10.6 | 0.406 | 70 | 1312 | 0.857 |
+| _morphological_ ⁰ | MSA | 8000 | 1.52 | 15.6 | _1.000_ | _0_ | 3845 | 0.919 |
+| _morphological_ ⁰ | Masri | 8000 | 1.48 | 20.6 | _1.000_ | _0_ | 1312 | 0.857 |
 
-Because of (2), the *gap* between an approach's MSA and Masri F1 is not a clean measure of
-dialect robustness. The honest cross-register claim is the **ranking**, which is identical
-in both registers, not the absolute Masri scores. Closing this properly needs a Masri-aware
-gold (CALIMA-EGY); the [gold-standard analysis](morphological-gold-standard-analysis.md) §8
-tracks that as the next step, with a characterization test as the tripwire.
+⁰ **Tautology, not a result.** `morphological` cuts only where the gold cuts, so recall =
+1.0 and beyond-gold = 0 by construction. Excluded from the live comparison; shown only to
+make the tautology explicit. `beyond-gold %` = share of a tokenizer's intra-word cuts that
+land where the gold is silent — **descriptive, not error** (much of it is inflection/dialect
+splitting the gold can't judge).
+
+**Consistency (gold-free) — does a fixed morpheme tokenize the same across host words?**
+
+| Approach | top-share ↑ | entropy (bits) ↓ |
+|----------|------------:|-----------------:|
+| unigram | 0.663 | 1.10 |
+| morfessor | 0.503 | 1.61 |
+| bpe | 0.323 | 2.04 |
+| wordpiece | 0.323 | 2.04 |
+| _morphological_ ⁰ | _1.000_ | _0.00_ |
+
+(Five shared morphemes: `ال`, `و`, `ب`, `كتاب`, `بيت`, across curated host words. `top-share`
+= fraction of hosts where the morpheme takes its single most-common tokenization; `entropy` =
+spread of its tokenizations. Stable = localizable feature. `morphological` is 1.0/0.0 because
+it is morpheme-based — a real property, but expected, so it is bracketed too.)
 
 ---
 
-## 5. Caveats
+## 4. Reading the results: there is no single winner
 
-- **Oracle excluded.** `morphological` is the gold's own segmenter; its F1 = 1.0 is a
-  tautology and it is excluded from the alignment ranking (a binding callout in the plan).
-- **Masri F1 is a floor**, scored against a partial gold (§4). Always cite it with coverage.
-- **Clitic-level, not inflectional.** The gold marks clitic boundaries (article,
-  conjunctions, prepositions, attached pronouns, tense proclitics), not stem-internal
-  inflection (`معلم`+`ون`). "Alignment" here means clitic-boundary alignment; a tokenizer is
-  neither rewarded nor penalised for splitting inflection.
-- **morfessor is mildly non-deterministic.** Its batch-training tie-breaks shift F1 by
-  ≈±0.01 between runs; treat its numbers as ±0.01, which does not change the ranking.
-- **Scale.** 6 000 training sentences and 200 eval sentences/register — enough to saturate
-  the vocab and stabilise the ranking, not a production-scale benchmark.
+The two honest diagnostics **point in different directions**, and that is the finding:
+
+- **Recall at fertility.** unigram has the highest raw recall (0.49 MSA) but pays the most
+  fertility (1.92) and cuts 69 % beyond the gold — it catches clitics largely by cutting a
+  lot. morfessor recovers nearly as many clitics (0.38) at the **lowest fertility** (1.56)
+  and the **lowest beyond-gold rate** (56 %), so its cuts coincide with real clitics more
+  often per cut. bpe is middling; wordpiece is weakest. On *efficiency of clitic recovery*,
+  morfessor looks best of the learned four.
+- **Consistency.** But unigram is the **most stable** learned tokenizer (top-share 0.66,
+  entropy 1.10) — a shared morpheme lands on the same token more often than under morfessor
+  (0.50 / 1.61) or bpe/wordpiece (0.32 / 2.04). On *localizability*, unigram looks best.
+
+So **recall-at-fertility favours morfessor; consistency favours unigram.** Nothing here
+adjudicates which property matters more for interpretability — that is precisely the
+hypothesis the Phase A probe exists to settle (§6). Reporting a single ranking would
+manufacture a verdict the evidence does not support.
+
+What *is* robust: **bpe and wordpiece are dominated** — lower recall-per-fertility *and*
+lower consistency than the alternatives, in both registers.
 
 ---
 
-## 6. Reproduce
+## 5. The MSA → Masri gap is real *and* partly an artifact of the gold
+
+Every tokenizer recovers fewer Masri clitics, and cuts more **beyond** the gold on Masri
+(80–85 % vs 69–76 %). Two effects compound — keep them separate:
+
+1. **Genuine difficulty.** Egyptian tweets carry Masri-specific morphology (progressive `بـ`,
+   future `هـ`, possessive `بتاع`) and noisier orthography.
+2. **A partial gold.** The gold is MSA-only; on Masri it covers just **0.857** of words (vs
+   0.919) and exposes 1312 seams (vs 3845). So Masri recall is scored against fewer, easier
+   boundaries — it is a **lower bound**, not a like-for-like number, and the high beyond-gold
+   rate means the tokenizers are doing a lot the gold simply cannot judge (the appendix shows
+   them splitting `بيكتب`/`هيروح`/`بتاعنا` — arguably correctly — for zero credit).
+
+The honest cross-register statement is the **dominance of bpe/wordpiece**, which holds in
+both registers, not any absolute Masri number. A Masri-aware gold (CALIMA-EGY) is the fix;
+the [gold analysis §8](morphological-gold-standard-analysis.md) tracks it.
+
+---
+
+## 6. The verdict comes from Phase A, not from this table
+
+This report is **Tier 1**: cheap, CPU-only, honest about its own limits. It can *rule things
+out* (bpe/wordpiece dominated) and surface *tensions* (recall vs consistency), but it cannot
+declare a fitness winner, because **morpheme alignment is a hypothesis, not a definition** —
+BPE may never split `ال` yet leave a model perfectly probeable for definiteness.
+
+**Tier 2 (Phase A, GPU)** settles it: train an embeddings-only model per tokenization, then
+probe for definiteness / tense / number / dialect and measure how *localized* each feature is
+(how few tokens carry it). The tokenizer whose representations make linguistic features most
+recoverable and most localized is the most interpretability-fit — *regardless* of its recall
+or consistency here. That step needs explicit GPU go-ahead (it crashes the window manager on
+this box) and ~5 model trainings, which is why it is staged after this cheap tier.
+
+---
+
+## 7. Caveats
+
+- **No precision / F1** — unmeasurable against an incomplete gold (§2). Do not reintroduce it.
+- **Recall is meaningless without fertility** — always read the two together (§2).
+- **`morphological` is tautological** on recall *and* (by construction) consistency — bracketed
+  in both tables, excluded from the live comparison.
+- **Masri recall is a floor**, scored against a partial gold (§5); always cite it with coverage.
+- **Clitic-level, not inflectional.** "Recall" is clitic-boundary recall; the gold does not
+  mark stem-internal inflection, so neither does this metric.
+- **morfessor is mildly non-deterministic** (±0.01 on recall between runs); does not change §4.
+- **Consistency uses a curated morpheme set**, so it is indicative, not exhaustive.
+- **Scale.** 6 000 train / 200 eval-per-register — enough to saturate vocab and stabilise the
+  *dominance* claim, not a production benchmark.
+
+---
+
+## 8. Reproduce
 
 ```bash
 uv run python docs/reports/compare_tokenizers.py
 ```
 
 Datasets are cached under `~/.cache/huggingface`; the run trains all five tokenizers and
-prints the table in §1, the appendix below, plus a JSON dump. The HF trainers and camel-tools
-are deterministic; morfessor varies by ≈±0.01 F1 (§5).
+prints the two tables in §3, the appendix, and a JSON dump. HF trainers and camel-tools are
+deterministic; morfessor varies by ≈±0.01 (§7).
 
 ---
 
 ## Appendix — representative segmentations
 
-Each cell is one tokenizer's split of the word, pieces joined by `·`. The same trained
-tokenizers as §1; the driver prints this verbatim under "APPENDIX". Pieces read
-right-to-left (index 0 = rightmost glyph). `gold` is the camel-tools morpheme target — a
-whole word (no `·`) means the gold marks no intra-word seam there.
+Each cell is one tokenizer's split of the word, pieces joined by `·`. Same trained tokenizers
+as §3; the driver prints this verbatim under "APPENDIX". Pieces read right-to-left. `gold` is
+the camel-tools clitic target — a whole word (no `·`) means the gold marks no intra-word seam.
 
 **MSA — the gold's native register**
 
@@ -166,26 +216,22 @@ whole word (no `·`) means the gold marks no intra-word seam there.
 | هيروح · he will go (future هـ) | هيروح | هير·وح | ه·يروح | هير·وح | ه·يروح | هيروح |
 | بتاعنا · ours (analytic possessive) | بتاعنا | بتاع·نا | بتاع·نا | بتاع·نا | بتاعنا | بتاعنا |
 
-**What these show (and why they back the numbers):**
+**What these show (and how they back §3–§5):**
 
-1. **`morphological` reproduces the gold exactly** on every MSA row — it *is* the gold's
-   segmenter, which is why its F1 = 1.0 and why it is excluded from the ranking (§1).
-2. **morfessor wins on aggregate, not on every word.** It keeps short clitic words whole
-   (`بالقلم`, `المدرسة`, `كتبها`) because its MDL stores a frequent short word more cheaply
-   than splitting it — yet on the long `وسيذهبون` it lands closest of the learned tokenizers
-   (`وس·يذهب·ون`). Its precision edge in §1 is earned across many words, not by peeling every
-   clitic.
+1. **`morphological` reproduces the gold exactly** on every MSA row — the visual form of its
+   recall-1.0 / consistency-0-entropy tautology.
+2. **morfessor recovers clitics efficiently but not exhaustively.** It keeps short clitic
+   words whole (`بالقلم`, `المدرسة`, `كتبها`) yet on the long `وسيذهبون` it lands closest of
+   the learned four (`وس·يذهب·ون`) — the low-fertility, low-beyond-gold profile from §3/§4.
 3. **Partial alignment on stacked proclitics.** On `بالعربية` (gold `ب·ال·عربية`),
-   bpe/unigram/morfessor peel the preposition `ب` but stop, missing the article `ال`; only
-   `morphological` recovers both seams. This half-credit is exactly what pins the learned
-   tokenizers' recall below 1.0.
-4. **unigram visibly over-segments** (`و·سي·ذه·ب·ون`, `بيك·ت·ب`) — the concrete face of its
-   high fertility / high recall / low precision profile (§2).
-5. **The partial-gold penalty, made visible (the key caveat from §4).** On `بيكتب`,
-   `هيروح`, `بتاعنا` the gold marks **no seam** — the MSA database cannot analyse the Masri
-   progressive `بـ`, future `هـ`, or possessive `بتاع`. Yet bpe splits `بي·كتب`, morfessor
-   splits `ه·يروح`, and bpe/unigram/wordpiece all split `بتاع·نا` — arguably the *correct*
-   Masri morpheme cuts. Because the gold has nothing to match, these land as false positives
-   (or simply earn no credit), pushing **Masri precision down for doing the right thing**.
-   This is the visual proof that the Masri F1 in §1 is a **lower bound**, not a verdict on
-   the tokenizers.
+   bpe/unigram/morfessor peel `ب` but miss `ال`; only `morphological` recovers both — the
+   reason learned recall sits well below 1.0.
+4. **unigram visibly over-segments** (`و·سي·ذه·ب·ون`, `بيك·ت·ب`) — the high-fertility,
+   high-recall, 69 % beyond-gold profile.
+5. **The partial-gold penalty, made visible (the §5 point).** On `بيكتب`, `هيروح`, `بتاعنا`
+   the gold marks **no seam** — the MSA database cannot analyse the Masri progressive `بـ`,
+   future `هـ`, or possessive `بتاع`. Yet bpe splits `بي·كتب`, morfessor splits `ه·يروح`, and
+   three tokenizers split `بتاع·نا` — arguably the *correct* Masri cuts. They earn **zero
+   credit** and inflate the beyond-gold rate. This is the visual proof that Masri recall is a
+   **lower bound**, and the concrete reason a precision-style metric would have been actively
+   misleading.
