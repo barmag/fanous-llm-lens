@@ -8,8 +8,10 @@ Metrics (all per register, never averaged across registers):
 
 - **fertility** = tokens / whitespace-word — segmentation granularity (compare only at
   equal realized vocab; we report the realized vocab so the reader can check parity).
-- **unk %** = fraction of emitted ids that are ``[UNK]`` — read *together* with fertility,
-  since heavy UNK lowers fertility while destroying information.
+- **unk %** = fraction of emitted ids that are ``[UNK]`` — information lost to OOV. For the
+  morfessor/morphological encoders this is *independent* of fertility (one id per piece, so
+  an OOV piece still counts as one token); it only interacts with fertility for encoders
+  where a whole OOV word collapses to a single ``[UNK]`` (the subword case, where UNK ~ 0).
 - **precision / recall / f1** of intra-word morpheme seams vs the camel-tools gold
   (``morpheme_boundaries``), with greedy one-to-one matching under a ±1-char tolerance,
   restricted to the gold-covered words in both the prediction and the gold.

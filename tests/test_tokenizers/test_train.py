@@ -39,6 +39,27 @@ def test_train_morfessor_returns_vocab():
     assert config["vocab"]
 
 
+def test_morfessor_actually_segments():
+    # Regression guard for the load_data bug: passing tuple(word) instead of the
+    # surface string made every word an unsplittable atom, so morfessor NEVER split
+    # (fertility 1.0) yet still returned a vocab — invisible to the test above.
+    # Two long, frequent units that also appear concatenated must split back apart.
+    corpus = (
+        ["مدرسة"] * 40
+        + ["كبيرة"] * 40
+        + ["مدرسةكبيرة"] * 5
+        + ["كتاب"] * 40
+        + ["صغير"] * 40
+        + ["كتابصغير"] * 5
+    )
+    config = train_tokenizer("morfessor", corpus, vocab_size=200)
+    encode = get_tokenizer("morfessor", config)
+    ids, _offsets = encode("مدرسةكبيرة")
+    assert len(ids) >= 2, (
+        "morfessor failed to segment a clearly compound word — load_data regression"
+    )
+
+
 def test_train_morphological_returns_vocab():
     config = train_tokenizer("morphological", CORPUS, vocab_size=200)
     assert config["vocab"]

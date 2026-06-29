@@ -60,21 +60,29 @@ hit morpheme seams only incidentally:
 
 ---
 
-## 3. Read fertility and UNK together
+## 3. Fertility and UNK are two separate facts
 
-Fertility (tokens/word) is only meaningful alongside the UNK rate, because a tokenizer that
-emits `[UNK]` for a whole word looks artificially efficient:
+Fertility (tokens/word) and the UNK rate measure different things, and whether they interact
+depends on the encoder:
 
 - **Subword tokenizers** have near-zero UNK (≤0.1 %) — byte/char fallback means they can
-  encode anything — so their fertility is honest. unigram's low fertility-efficiency claim
-  is real but bought with over-segmentation, not coverage loss.
+  encode anything — so their fertility is honest. The one way UNK *could* inflate apparent
+  efficiency (an out-of-vocab whole word collapsing to a single `[UNK]` token) does not bite
+  here, because their UNK is essentially zero. unigram's low fertility-efficiency claim is
+  real but bought with over-segmentation (fertility 1.9–2.1), not coverage loss.
 - **morfessor** carries **8–11 % UNK**: its vocabulary is 8 000 learned morphs, and an
-  out-of-vocabulary morph becomes `[UNK]`. Its fertility (≈1.56) is therefore a *slight*
-  under-count of true granularity.
-- **morphological** carries the **most UNK (16–21 %)** — its vocab is clitic-level surface
-  pieces, many of which are rare stems. Its low fertility (1.48–1.52) must be read with that
-  caveat: it is efficient partly because it drops information into `[UNK]`. This is a real
-  cost of a closed morph vocabulary at this size, not a free lunch.
+  out-of-vocabulary morph becomes `[UNK]`. But its encoder emits **one id per morph**, so the
+  UNK rate does *not* change its fertility (≈1.56) — the two are independent. The 8–11 % is a
+  separate fact: that fraction of morphs is information lost, not efficiency gained.
+- **morphological** carries the **most UNK (16–21 %)** and the **lowest fertility** (1.48–1.52),
+  but these are unrelated. The low fertility is because camel-tools cuts only at *clitic*
+  boundaries (conservative segmentation, §5), so it produces few pieces per word. The high
+  UNK is a separate property of an 8 000-entry surface-piece vocab that misses rare stems.
+  Same one-id-per-piece encoder, so fertility ⊥ UNK here too.
+
+The takeaway is not "high UNK inflates fertility" (it doesn't, for the morph encoders) but
+that the morph-based tokenizers lose real information to `[UNK]` at this vocab size — which is
+a downstream-model problem, addressed in the Phase A note below, not a fertility artifact.
 
 **Implication for Phase A.** If a tokenizer feeds an embeddings-only probe model, morfessor
 and morphological would need a larger vocab (or subword backoff) to bring UNK down before
