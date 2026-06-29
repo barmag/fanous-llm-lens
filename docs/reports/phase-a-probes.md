@@ -44,18 +44,22 @@ probe on a fresh, untrained `W_E`** (random init, same tokenizer, same labels/sp
 | morfessor (MSA) | 0.711 → 0.704 (−0.007) | 0.628 → 0.626 (−0.002) |
 | morphological (MSA) | 0.931 → 0.929 (−0.002) | 0.586 → 0.596 (+0.010) |
 
-**Training the embeddings barely changes anything — every Δ is within ±0.014, and the average
-is slightly *negative*.** (Masri is the same picture.) So at zero layers, this probe is **not**
-measuring learned representation; it is measuring the **tokenization's own linear separability**
-of the feature: pooling a bag of (here, effectively random-projected) token embeddings exposes a
-feature exactly when the *tokens* covary with it. That is a property of the tokenizer, not the
-trained model.
+**Training reshaped the embeddings a lot, yet the probe did not move.** The loss fell steeply
+during training (≈ 88 → 27 on the smoke run) and the five tokenizers reached *different* final
+losses (5.46–7.74), so `W_E` was substantially rewritten — and still every probe Δ is within
+**±0.014** (single-seed noise), average slightly negative. The probe is **invariant to whatever
+geometry training imposed**.
 
-This is the honest frame for everything below: **Phase A here ranks *tokenizations*, not learned
-features.** It is a principled, gold-free fitness probe — it scores the real feature directly,
-no morpheme-boundary gold needed — but at this depth the model contributes ~nothing. (Testing
-what *learning* adds needs depth: with attention/MLP the trained−untrained increment becomes the
-interesting quantity. Here it is ≈ 0 by construction.)
+Why: a pooled *mean* of token embeddings is a (here near-random) linear projection of the word's
+**bag of tokens**, so by Johnson–Lindenstrauss the probe ≈ a bag-of-tokens probe — it fires when
+the *tokens* covary with the feature, regardless of their learned values. So the honest claim is
+not "training does nothing" (the model demonstrably learned — the loss says so) but: **at
+zero-layer depth, pooled-mean linear probing is insensitive to training — it scores the
+*tokenization*, not the model.** Phase A here ranks *tokenizations*; it is a principled,
+gold-free fitness probe (it scores the real feature, no morpheme-boundary gold needed) whose
+zero-layer reading the model does not influence. Measuring what *learning* adds needs depth —
+with attention/MLP the trained−untrained increment becomes the interesting quantity, and is the
+natural next experiment.
 
 ---
 
@@ -79,25 +83,31 @@ interesting quantity. Here it is ≈ 0 by construction.)
 
 The hypothesis is **conditional**, and the condition is *which boundaries the tokenizer draws*:
 
-1. **Definiteness (a clitic): morphological scores highest (0.93) — but this is tokenizer
-   inventory, not learning.** The untrained baseline is *identical* (0.931 → 0.929): every
-   definite word pools the *same* `ال`-token vector, so the feature is a constant linear offset
-   the probe trivially recovers, with or without training. This is the Phase-A form of the
-   Phase-B tautology (`morphological` matching the gold because its vocab *is* the gold), now
-   **measured** rather than asserted. A dedicated `ال` token *does* make definiteness maximally
-   localizable — that is the mechanism — but it is handed over by the tokenization, not learned.
+Both features are tokenization properties (§2) — the distinction is **not** inventory-vs-learned
+but **one-token artifact vs distributed-across-inventory**:
 
-2. **Number (an inflection): morphological is the WORST (0.59) — and this one is real.** It
-   cannot be inventory-trivial: *no single token isolates plurality*, so there is no constant
-   offset to exploit. morphological loses because `d3tok` marks clitics, not inflection
-   (`المعلمون` → `ال`+`معلمون`, plurality fused inside the stem token), leaving the model nothing
-   that covaries cleanly with number. The frequency-driven subword tokenizers — which sometimes
-   split the `ون`/`ات` suffix into a reusable token — expose number **better**, unigram best at
-   0.76.
+1. **Definiteness (a clitic): morphological's 0.93 is a one-token artifact — do not credit it.**
+   A *single dedicated token*, `ال`, literally carries the label: every definite word pools the
+   same `ال`-vector, a constant offset any probe recovers (untrained 0.931 ≈ trained 0.929). It
+   is the Phase-A form of the Phase-B tautology (`morphological` matches the gold because its
+   vocab *is* the gold). A dedicated `ال` token genuinely makes definiteness maximally
+   localizable — but the score is handed over by one token, so the *gap* over other tokenizers
+   is not a meaningful comparison.
+
+2. **Number (an inflection): morphological is the WORST (0.59), and here the ranking is
+   meaningful** — because number is **not** a one-token artifact. No single token equals
+   "plural"; the signal is distributed across *whether the inventory isolates the sound-plural
+   suffix as a reusable token*. Verified on the trained tokenizers: unigram and bpe split it
+   (`المعلمون` → `…·ون`, `الطالبات` → `…·ات`), giving plurals a shared suffix token; morphological
+   **fuses** it in the stem (`ال·معلمون`, `ال·طالبات`), so plurality has no shared carrier and is
+   least separable. (Broken plurals — `رجال`, `كتب` — are kept whole by *all* tokenizers, which
+   caps the ceiling for everyone and is why no tokenizer exceeds ~0.77.) Because no one token
+   short-circuits the probe, the ordering **unigram 0.76 ▸ subwords ~0.69 ▸ morphological 0.59**
+   is a trustworthy tokenization comparison, not a tautology.
 
 So **morpheme-aligned tokenization is not a universal interpretability win.** It makes the
 morphemes it *isolates* maximally available (clitics → definiteness) and the morphology it
-*fuses* maximally hidden (inflection → number). A tokenizer's interpretability profile is
+*fuses* least separable (inflection → number). A tokenizer's interpretability profile is
 **feature-specific**, fixed by where it cuts.
 
 ---
@@ -118,17 +128,20 @@ vocabularies and sequence statistics, so the numbers are not comparable and supp
 
 This is exactly why Phase B refused to crown a winner and demoted alignment to a hypothesis: a
 boundary metric is not a fitness verdict. The probe adjudicates and reorders the cheap-tier
-ranking — and, via §2, even cautions that "the model" is doing none of the work at zero depth.
+ranking — and, via §2, cautions that the model's learned geometry is invisible to this
+zero-layer probe, so these are tokenization comparisons, not statements about a trained network.
 
 ---
 
 ## 6. Caveats
 
-- **Training is ~a no-op here (§2)** — so read every number as a *tokenization* property, not a
-  learned one. The honest learned-representation question needs a deeper model; that is the
-  natural next experiment (re-probe with layers; watch the increment appear).
-- **morphological's definiteness win is inventory** (untrained = trained). The non-tautological
-  result is **number**, where morphological is worst.
+- **This zero-layer pooled-mean probe is insensitive to training (§2)** — `W_E` was substantially
+  rewritten (loss fell, finals differ) yet AUC held within ±0.014. So read every number as a
+  *tokenization* property, not a learned one. The learned-representation question needs a deeper
+  model; that is the natural next experiment (re-probe with layers; watch the increment appear).
+- **morphological's definiteness win is a one-token artifact** (`ال`; untrained = trained), not a
+  creditable gap. The meaningful, non-tautological result is **number**, where morphological is
+  worst because it fuses the sound-plural suffix.
 - **Two features** (definiteness, number) span the clitic/inflection contrast that matters most;
   negation, tense, dialect remain for a fuller sweep.
 - **Single seed**; gaps are large vs expected seed noise, but error bars are a fair follow-up.
