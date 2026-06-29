@@ -83,3 +83,6 @@ logs/
 .env
 .env.local
 .superpowers/
+
+# Phase A trained model checkpoints (large binaries; regenerate via run_probes.py)
+experiments/embedding-probes/checkpoints/

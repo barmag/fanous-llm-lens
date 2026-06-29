@@ -1,0 +1,77 @@
+{
+  "bpe": {
+    "final_loss": 7.6171,
+    "MSA": {
+      "definite": 0.755,
+      "number": 0.663,
+      "length": 0.648,
+      "random": 0.503
+    },
+    "Masri": {
+      "definite": 0.743,
+      "number": 0.697,
+      "length": 0.59,
+      "random": 0.514
+    }
+  },
+  "unigram": {
+    "final_loss": 6.6517,
+    "MSA": {
+      "definite": 0.86,
+      "number": 0.762,
+      "length": 0.695,
+      "random": 0.504
+    },
+    "Masri": {
+      "definite": 0.851,
+      "number": 0.767,
+      "length": 0.669,
+      "random": 0.509
+    }
+  },
+  "wordpiece": {
+    "final_loss": 7.7408,
+    "MSA": {
+      "definite": 0.747,
+      "number": 0.684,
+      "length": 0.659,
+      "random": 0.499
+    },
+    "Masri": {
+      "definite": 0.753,
+      "number": 0.704,
+      "length": 0.629,
+      "random": 0.509
+    }
+  },
+  "morfessor": {
+    "final_loss": 5.4642,
+    "MSA": {
+      "definite": 0.704,
+      "number": 0.626,
+      "length": 0.643,
+      "random": 0.499
+    },
+    "Masri": {
+      "definite": 0.707,
+      "number": 0.667,
+      "length": 0.616,
+      "random": 0.491
+    }
+  },
+  "morphological": {
+    "final_loss": 5.6939,
+    "MSA": {
+      "definite": 0.929,
+      "number": 0.596,
+      "length": 0.718,
+      "random": 0.5
+    },
+    "Masri": {
+      "definite": 0.901,
+      "number": 0.594,
+      "length": 0.69,
+      "random": 0.502
+    }
+  }
+}
