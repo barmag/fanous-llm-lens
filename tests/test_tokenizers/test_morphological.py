@@ -120,3 +120,83 @@ def test_masri_specific_morphology_undersegmented_by_msa_gold():
     for text in ("بيكتب", "هيروح", "بتاعنا"):
         bounds = morpheme_boundaries(text)
         assert bounds == [], f"{text!r} now segments — re-evaluate the Masri gold standard"
+
+
+# ─────────────────────── MSA (Modern Standard) quality ───────────────────────
+#
+# calima-msa-r13 is an MSA database, so MSA is its native domain and the gold
+# standard should segment it richly and correctly. These tests assert exact,
+# verified seam positions across the full range of MSA clitics — and, by
+# contrast with the Masri limitation above, that the future سـ proclitic IS split.
+
+
+def test_msa_definite_article_across_a_sentence():
+    # الكتاب على الطاولة — the article ال peels off both nouns; على stays whole.
+    text = "الكتاب على الطاولة"
+    bounds = morpheme_boundaries(text)
+    _assert_valid_seams(text, bounds)
+    assert bounds == [2, 13]
+    assert text[2] == "ك"  # start of كتاب
+    assert text[13] == "ط"  # start of طاولة
+
+
+def test_msa_stacked_proclitics_conjunction_future_verb():
+    # وسيذهبون = و + س + يذهبون — three proclitics stack on one verb, plus ال+مدرسة.
+    text = "وسيذهبون إلى المدرسة"
+    bounds = morpheme_boundaries(text)
+    _assert_valid_seams(text, bounds)
+    assert bounds == [1, 2, 15]
+    assert text[1] == "س"  # future proclitic boundary
+    assert text[2] == "ي"  # start of the verb stem يذهبون
+
+
+def test_msa_future_prefix_is_segmented():
+    # The future سـ IS split in MSA — the direct contrast with the Masri future هـ
+    # (test_masri_specific_morphology_undersegmented_by_msa_gold), which is not.
+    text = "سنكتب الدرس"
+    bounds = morpheme_boundaries(text)
+    _assert_valid_seams(text, bounds)
+    assert bounds == [1, 8]
+    assert text[1] == "ن"  # سـ peeled; نكتب stem begins here
+
+
+def test_msa_enclitic_pronouns_are_split():
+    assert morpheme_boundaries("بيتهم كبير") == [3]  # بيت + هم
+    assert morpheme_boundaries("كتبها الطالب") == [3, 8]  # كتب + ها ; ال + طالب
+
+
+def test_msa_preposition_and_conjunction_proclitics():
+    assert morpheme_boundaries("بالقلم") == [1, 3]  # ب + ال + قلم
+    assert morpheme_boundaries("فكتب الرسالة") == [1, 7]  # ف + كتب ; ال + رسالة
+
+
+def test_msa_reconstruction_guard_on_assimilation_and_taa_marbuta():
+    # لـ+الـ assimilates to لل (alef drops); مدرسة+هم turns ة→ت. Both fail to
+    # reconstruct, so the guard skips them rather than emit wrong offsets.
+    for text in ("للطلاب", "ومدرستهم بعيدة"):
+        bounds, _n_words, skipped = morpheme_boundaries_with_coverage(text)
+        assert skipped >= 1
+        _assert_valid_seams(text, bounds)
+
+
+def test_msa_is_segmented_richly_with_high_coverage():
+    # Aggregate quality check: on its native register the gold finds abundant,
+    # surface-valid seams with low skip rate — the property the benchmark relies on.
+    sentences = [
+        "الكتاب على الطاولة",
+        "وسيذهبون إلى المدرسة",
+        "بيتهم كبير",
+        "كتبها الطالب",
+        "بالقلم",
+        "سنكتب الدرس",
+        "فكتب الرسالة",
+    ]
+    total_seams = 0
+    total_skipped = 0
+    for s in sentences:
+        bounds, _n_words, skipped = morpheme_boundaries_with_coverage(s)
+        _assert_valid_seams(s, bounds)
+        total_seams += len(bounds)
+        total_skipped += skipped
+    assert total_seams >= 10  # rich segmentation, not degenerate
+    assert total_skipped == 0  # none of these MSA words trip the guard
