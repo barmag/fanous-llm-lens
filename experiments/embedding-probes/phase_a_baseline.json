@@ -1,0 +1,52 @@
+{
+  "bpe": {
+    "MSA": {
+      "definite": 0.761,
+      "number": 0.669
+    },
+    "Masri": {
+      "definite": 0.752,
+      "number": 0.707
+    }
+  },
+  "unigram": {
+    "MSA": {
+      "definite": 0.872,
+      "number": 0.773
+    },
+    "Masri": {
+      "definite": 0.865,
+      "number": 0.775
+    }
+  },
+  "wordpiece": {
+    "MSA": {
+      "definite": 0.734,
+      "number": 0.693
+    },
+    "Masri": {
+      "definite": 0.748,
+      "number": 0.71
+    }
+  },
+  "morfessor": {
+    "MSA": {
+      "definite": 0.711,
+      "number": 0.628
+    },
+    "Masri": {
+      "definite": 0.716,
+      "number": 0.671
+    }
+  },
+  "morphological": {
+    "MSA": {
+      "definite": 0.931,
+      "number": 0.586
+    },
+    "Masri": {
+      "definite": 0.904,
+      "number": 0.597
+    }
+  }
+}
