@@ -169,8 +169,13 @@ Key dependencies:
   feature-localized separation** for at least one shortlisted tokenizer over BPE on ≥5 of 10
   features (AUC Δ > 0.1) — *or*, equally publishable, the null result that alignment does **not**
   improve probe accuracy (which would refute the morpheme-alignment hypothesis cleanly).
-  *(Met, with a sharper conditional answer than a single ranking — see
-  `docs/reports/phase-a-probes.md`. Controls clean. Morphological wins definiteness 0.93 vs
-  bpe 0.75 (Δ 0.18) but is **worst** on number 0.59; unigram leads number 0.76 and is the best
-  all-rounder. Alignment helps the clitics it isolates and hurts the inflection it leaves fused —
-  fitness is feature-specific, and the probe overturned Phase B's recall-leader morfessor.)*
+  *(Met, with a sharper answer than a single ranking — see `docs/reports/phase-a-probes.md`.
+  Controls clean. **An untrained-`W_E` baseline shows training barely moves the probe (Δ ≤ ±0.014),
+  so at zero-layer this measures the *tokenization's* feature separability, not learned
+  representation.** Morphological tops definiteness (0.93) but that is tokenizer **inventory**
+  (untrained = trained — the dedicated `ال` token); the non-tautological result is **number**,
+  where morphological is **worst** (0.59) because it fuses inflection in the stem, and unigram
+  leads (0.76) as the best all-rounder. Alignment exposes the clitics it isolates and hides the
+  inflection it fuses — fitness is feature-specific. The probe also overturned Phase B's
+  recall-leader morfessor. LM loss is not compared (not comparable across vocabularies). Next:
+  re-probe with depth to measure what *learning* adds.)*
