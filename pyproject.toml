@@ -145,6 +145,12 @@ select = [
 ignore = [
     "E501", # line length — formatter handles it
     "B008", # function calls in argument defaults (common in pydantic / typer)
+    # Arabic is a first-class citizen here; the "ambiguous unicode" homoglyph
+    # checks (Latin-script confusables) fire constantly on legitimate Arabic
+    # literals, comments, and docstrings and carry no signal in this repo.
+    "RUF001", # ambiguous char in string
+    "RUF002", # ambiguous char in docstring
+    "RUF003", # ambiguous char in comment
 ]
 
 [tool.ruff.lint.per-file-ignores]
