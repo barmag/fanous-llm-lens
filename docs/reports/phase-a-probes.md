@@ -146,6 +146,10 @@ zero-layer probe, so these are tokenization comparisons, not statements about a 
   negation, tense, dialect remain for a fuller sweep.
 - **Single seed**; gaps are large vs expected seed noise, but error bars are a fair follow-up.
   The untrained baseline already de-risks the convergence worry (it bounds what training did).
+- **Byte-premium confound (untested).** Each model trains on the same *sentences* but, given
+  differing fertility, not the same number of *tokens* — so cross-tokenizer AUC gaps conflate
+  feature-exposure with effective-data effects. A fertility-matched rerun (equalize tokens, not
+  sentences) is the clean control; see [tokenization-lit-note.md](tokenization-lit-note.md).
 
 ---
 

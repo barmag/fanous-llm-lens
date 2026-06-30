@@ -147,6 +147,14 @@ feature — and `morphological` wins it for the clitic and loses it for the infl
 - **§4 is a mechanism consistent with the data, not a proof.** The segmentations verify its
   premises; it has not been tested by intervention (e.g. forcing a shared plural token into
   `morphological` and re-probing — a clean follow-up).
+- **Byte-premium confound (untested).** Each model trains on the same *sentences* but, because
+  tokenizers differ in fertility, **not** the same number of tokens or the same per-step signal —
+  so cross-tokenizer AUC gaps conflate feature-exposure with effective-data effects. The published
+  decompositions ([tokenization-lit-note.md](tokenization-lit-note.md): Inequities 2025;
+  Why-morph-complex 2024) find data/fertility dominate at scale, so a **fertility-matched** rerun
+  (equalize *tokens*, not sentences) is needed before the ranking reads as a pure tokenization
+  property. Our refusal to compare LM loss across tokenizers (Phase A §5) is the same caution on a
+  different axis.
 
 ---
 
