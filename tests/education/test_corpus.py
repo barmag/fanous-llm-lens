@@ -2,6 +2,7 @@
 
 clean() is pure (regex-only, no network); we test it directly. We also assert
 both training scripts import the shared module so the refactor is wired up."""
+
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ sys.path.insert(0, str(EDU))
 
 def test_clean_strips_latin_digits_and_collapses_whitespace():
     import corpus
+
     # keeps Arabic letters, drops latin/digits/underscore/@, collapses whitespace
     # _WS collapses whitespace first (→ single spaces), then _NOISE strips latin tokens
     # leaving adjacent single-spaces; final _AR pass does not re-collapse whitespace.
@@ -22,6 +24,28 @@ def test_clean_strips_latin_digits_and_collapses_whitespace():
 
 def test_both_trainers_import_shared_corpus():
     import importlib
+
     for mod in ("train_stage2dash", "train_stage2dash2"):
         m = importlib.import_module(mod)
         assert hasattr(m, "corpus") or hasattr(m, "build_corpus"), mod
+
+
+def test_train_tokenizer_unigram_kind(tmp_path):
+    import corpus
+
+    text = "القطة بتاكل السمك والولد بيشرب اللبن في البيت " * 50
+    out = tmp_path / "uni.json"
+    tok = corpus.train_tokenizer(text, vocab_size=120, out_path=str(out), kind="unigram")
+    assert out.exists()
+    assert tok.get_vocab_size() <= 120
+    # round-trips Arabic text to non-empty ids
+    assert tok.encode("القطة في البيت").ids
+
+
+def test_train_tokenizer_defaults_to_bpe(tmp_path):
+    import corpus
+
+    text = "القطة بتاكل السمك " * 50
+    out = tmp_path / "bpe.json"
+    tok = corpus.train_tokenizer(text, vocab_size=120, out_path=str(out))
+    assert out.exists() and tok.get_vocab_size() <= 120

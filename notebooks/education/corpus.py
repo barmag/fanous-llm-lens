@@ -2,6 +2,7 @@
 
 Streaming/cleaning Arabic text, training a small unicode BPE, and caching the
 tokenised ids. Extracted from train_stage2dash.py so both trainers reuse one copy."""
+
 from __future__ import annotations
 
 import os
@@ -69,20 +70,33 @@ def build_corpus(char_budget: int, cache_path: str) -> str:
 # --------------------------------------------------------------------------- #
 # Tokenizer: small unicode-level BPE -> readable Arabic subword tokens.
 # --------------------------------------------------------------------------- #
-def train_tokenizer(text: str, vocab_size: int, out_path: str):
+def train_tokenizer(text: str, vocab_size: int, out_path: str, kind: str = "bpe"):
     from tokenizers import Tokenizer, decoders, models, normalizers, pre_tokenizers, trainers
 
     if os.path.exists(out_path):
         print(f"[tok] cache hit: {out_path}")
         return Tokenizer.from_file(out_path)
 
-    print(f"[tok] training {vocab_size}-vocab BPE...")
-    tok = Tokenizer(models.BPE(unk_token="[UNK]"))
+    print(f"[tok] training {vocab_size}-vocab {kind}...")
+    if kind == "unigram":
+        tok = Tokenizer(models.Unigram())
+        trainer = trainers.UnigramTrainer(
+            vocab_size=vocab_size, special_tokens=["[UNK]"], unk_token="[UNK]"
+        )
+        decoder = decoders.WordPiece(prefix="")  # tokens are whitespace-pretokenized pieces
+    elif kind == "bpe":
+        tok = Tokenizer(models.BPE(unk_token="[UNK]"))
+        trainer = trainers.BpeTrainer(
+            vocab_size=vocab_size, min_frequency=2, special_tokens=["[UNK]"]
+        )
+        decoder = decoders.BPEDecoder()
+    else:
+        raise ValueError(f"unknown tokenizer kind: {kind!r} (expected 'bpe' or 'unigram')")
+
+    # Controlled comparison: identical normalizer + pre-tokenizer; only the model differs.
     tok.normalizer = normalizers.NFKC()
     tok.pre_tokenizer = pre_tokenizers.Whitespace()
-    tok.decoder = decoders.BPEDecoder()
-    trainer = trainers.BpeTrainer(vocab_size=vocab_size, min_frequency=2, special_tokens=["[UNK]"])
-    # chunk the text so the trainer iterates instead of holding one giant string
+    tok.decoder = decoder
     chunk = 1_000_000
     tok.train_from_iterator(
         (text[i : i + chunk] for i in range(0, len(text), chunk)), trainer=trainer
