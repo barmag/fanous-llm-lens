@@ -104,3 +104,81 @@ def test_verify_pool_runs_topk():
     verified = st.verify_pool(model, pool, top_k=3)
     assert len(verified) == 3
     assert all("lift" in v for v in verified)
+
+
+def test_candidate_pool_expands_outputs_and_dests():
+    # one seed source, 3 outputs x 2 dests -> up to 6 distinct (s,d,o) candidates
+    model = _tiny_model(d_vocab=40)
+    pool = st.candidate_pool(
+        model,
+        head=0,
+        freq=40,
+        top_n=100,
+        sources={5},
+        per_source_outputs=3,
+        per_source_dests=2,
+    )
+    assert 1 < len(pool) <= 6
+    assert all(c["source"] == 5 for c in pool)
+    triples = {(c["source"], c["dest"], c["output"]) for c in pool}
+    assert len(triples) == len(pool)  # no duplicates
+    assert all(c["output"] != 5 for c in pool)  # self-copy still forbidden
+
+
+def test_candidate_pool_default_is_one_per_source():
+    # defaults (1,1) preserve the old one-candidate-per-source behaviour
+    model = _tiny_model(d_vocab=40)
+    pool = st.candidate_pool(model, head=0, freq=40, top_n=100, sources={5, 9})
+    assert len(pool) == 2
+
+
+def test_dedup_triples_keeps_highest_score():
+    rows = [
+        {"source": 1, "dest": 2, "output": 3, "score": 0.4, "head": 0},
+        {"source": 1, "dest": 2, "output": 3, "score": 0.9, "head": 1},
+        {"source": 4, "dest": 5, "output": 6, "score": 0.1, "head": 0},
+    ]
+    out = st.dedup_triples(rows)
+    assert len(out) == 2
+    kept = next(r for r in out if r["source"] == 1)
+    assert kept["score"] == 0.9 and kept["head"] == 1
+
+
+def test_top_per_group_picks_highest_lift_per_group():
+    rows = [
+        {"group": "A", "lift": 0.1, "source": 1, "dest": 2, "output": 3},
+        {"group": "A", "lift": 0.8, "source": 4, "dest": 5, "output": 6},
+        {"group": "B", "lift": 0.3, "source": 7, "dest": 8, "output": 9},
+    ]
+    out = st.top_per_group(rows, key="group", n=1)
+    assert len(out) == 2
+    a = next(r for r in out if r["group"] == "A")
+    assert a["lift"] == 0.8
+
+
+def test_triple_table_html_renders_tokens_lift_and_gloss():
+    id_to_str = {1: "الرغم", 2: "على", 3: "إلا"}
+    rows = [
+        {
+            "source": 1,
+            "dest": 2,
+            "output": 3,
+            "lift": 0.5,
+            "head": 3,
+            "group": "MSA",
+            "gloss": "fixed على الرغم…إلا frame",
+        }
+    ]
+    out = st.triple_table_html(rows, id_to_str, title="Punchline")
+    assert "<table" in out
+    assert "الرغم" in out and "إلا" in out
+    assert "+0.500" in out
+    assert "fixed على الرغم" in out
+    assert 'dir="ltr"' in out  # triple keeps [src … dst] -> out ordering
+    assert out.index("الرغم") < out.index("إلا")  # source before output in the expr
+
+
+def test_triple_table_html_empty_returns_panel_not_crash():
+    out = st.triple_table_html([], {}, title="Empty", empty_msg="none here")
+    assert "<table" not in out
+    assert "none here" in out and "Empty" in out

@@ -8,6 +8,8 @@ OV circuit (what the attended source promotes). Nothing here touches the network
 
 from __future__ import annotations
 
+import html
+
 import torch
 
 
@@ -68,13 +70,18 @@ def candidate_pool(
     include_self_copy: bool = False,
     top_n: int = 100,
     sources=None,
+    per_source_outputs: int = 1,
+    per_source_dests: int = 1,
 ) -> list[dict]:
     """Rank skip-trigram triples (source, dest, output) for one head by a composite score.
 
     score = OV[source, output] * QK[dest, source], over frequent tokens. For each source we
-    take its single best output (off-diagonal unless include_self_copy) and the destination
-    that most strongly routes attention to it. `sources` (a set of ids) makes this a seeded
-    pool; None scans all frequent sources (unsupervised).
+    enumerate its `per_source_outputs` strongest promoted outputs (off-diagonal unless
+    include_self_copy) crossed with the `per_source_dests` destinations that most strongly
+    route attention to it — so a handful of seed sources expands into a large candidate pool
+    (5 seeds * 5 outputs * 4 dests = 100). `sources` (a set of ids) makes this a seeded pool;
+    None scans all frequent sources (unsupervised). Defaults (1, 1) keep the one-per-source
+    behaviour. Returns the top_n by score.
     """
     QK, OV = head_circuits(model, head)
     QK, OV = QK[:freq, :freq], OV[:freq, :freq]
@@ -84,15 +91,68 @@ def candidate_pool(
         ov_row = OV[s].clone()
         if not include_self_copy:
             ov_row[s] = float("-inf")  # forbid self-copy
-        o = int(torch.argmax(ov_row))
-        ov = float(ov_row[o])
-        if ov == float("-inf"):
-            continue
-        d = int(torch.argmax(QK[:, s]))  # destination routing attention to s
-        qk = float(QK[d, s])
-        out.append({"source": s, "dest": d, "output": o, "ov": ov, "qk": qk, "score": ov * qk})
+        k_out = min(per_source_outputs, ov_row.numel())
+        o_vals, o_idx = torch.topk(ov_row, k_out)
+        qk_col = QK[:, s]  # destinations routing attention to s
+        k_dst = min(per_source_dests, qk_col.numel())
+        d_vals, d_idx = torch.topk(qk_col, k_dst)
+        for ov, o in zip(o_vals.tolist(), o_idx.tolist(), strict=True):
+            if ov == float("-inf"):
+                continue  # only self-copy left for this source
+            for qk, d in zip(d_vals.tolist(), d_idx.tolist(), strict=True):
+                out.append(
+                    {
+                        "source": s,
+                        "dest": int(d),
+                        "output": int(o),
+                        "ov": float(ov),
+                        "qk": float(qk),
+                        "score": float(ov) * float(qk),
+                    }
+                )
     out.sort(key=lambda c: c["score"], reverse=True)
     return out[:top_n]
+
+
+def dedup_triples(rows: list[dict], *, keep: str = "score") -> list[dict]:
+    """Drop duplicate (source, dest, output) triples, keeping the highest-`keep` instance.
+
+    The full model is what `verify_triple` runs, so the same triple proposed by two heads has
+    one true lift; dedup before verifying (or after) to avoid double-counting. Order-stable on
+    first appearance.
+    """
+    best: dict[tuple, dict] = {}
+    order: list[tuple] = []
+    for r in rows:
+        k = (r["source"], r["dest"], r["output"])
+        if k not in best:
+            best[k] = r
+            order.append(k)
+        elif r.get(keep, float("-inf")) > best[k].get(keep, float("-inf")):
+            best[k] = r
+    return [best[k] for k in order]
+
+
+def top_per_group(
+    rows: list[dict], *, key: str = "group", n: int = 1, by: str = "lift"
+) -> list[dict]:
+    """Highest-`by` n rows per distinct `key` value, groups in first-appearance order.
+
+    Used to pick the most-representative verified triple(s) per category for the punchline.
+    """
+    groups: dict = {}
+    order: list = []
+    for r in rows:
+        g = r.get(key)
+        if g not in groups:
+            groups[g] = []
+            order.append(g)
+        groups[g].append(r)
+    out = []
+    for g in order:
+        ranked = sorted(groups[g], key=lambda r: r.get(by, float("-inf")), reverse=True)
+        out.extend(ranked[:n])
+    return out
 
 
 def verify_triple(model, triple: dict, *, n_ctx: int | None = None) -> dict:
@@ -120,3 +180,69 @@ def verify_triple(model, triple: dict, *, n_ctx: int | None = None) -> dict:
 def verify_pool(model, pool: list[dict], *, top_k: int = 20) -> list[dict]:
     """Verify the top_k candidates of a pool on held-out forward passes."""
     return [verify_triple(model, c) for c in pool[:top_k]]
+
+
+def _triple_expr(row: dict, id_to_str) -> str:
+    """`[source … dest] → output` with tokens resolved to strings (HTML-escaped)."""
+    s = html.escape(str(id_to_str.get(row["source"], row["source"])))
+    d = html.escape(str(id_to_str.get(row["dest"], row["dest"])))
+    o = html.escape(str(id_to_str.get(row["output"], row["output"])))
+    # dir=ltr keeps the [source … dest] → output ordering even for Arabic tokens (paper form).
+    return f'<span dir="ltr" style="font-family:monospace">[{s} … {d}] → {o}</span>'
+
+
+def triple_table_html(
+    rows: list[dict],
+    id_to_str,
+    *,
+    title: str = "",
+    note: str = "",
+    empty_msg: str = "لا توجد ثلاثيات اتأكّدت · nothing verified",
+) -> str:
+    """Render verified skip-trigram triples as a paper-style RTL HTML table.
+
+    Each row needs source/dest/output; optional group, head, lift, gloss columns render as
+    "—" when absent. Returns a string (caller wraps in IPython.display.HTML), so this stays
+    importable and unit-testable with no notebook/display dependency. Empty `rows` yields a
+    small panel with `empty_msg` instead of crashing — the CI/tiny-model path may verify none.
+    """
+    head = (
+        f'<div dir="rtl" style="font-weight:600;margin:6px 0">{html.escape(title)}</div>'
+        if title
+        else ""
+    )
+    if not rows:
+        return f'{head}<div dir="rtl" style="color:#888;padding:6px">{html.escape(empty_msg)}</div>'
+    cols = [
+        ("التصنيف · category", "group"),
+        ("رأس · head", "head"),
+        ("الثلاثي · skip-trigram", "_expr"),
+        ("الرفع · lift", "lift"),
+        ("التفسير · what it encodes", "gloss"),
+    ]
+    th = "".join(
+        f'<th style="text-align:right;padding:4px 10px;border-bottom:1px solid #ccc">{html.escape(h)}</th>'
+        for h, _ in cols
+    )
+    body = []
+    for r in rows:
+        cells = []
+        for _, k in cols:
+            if k == "_expr":
+                v = _triple_expr(r, id_to_str)
+            elif k == "lift":
+                v = f"{r['lift']:+.3f}" if "lift" in r else "—"
+            else:
+                raw = r.get(k)
+                v = html.escape(str(raw)) if raw not in (None, "") else "—"
+            cells.append(f'<td style="text-align:right;padding:4px 10px">{v}</td>')
+        body.append(f"<tr>{''.join(cells)}</tr>")
+    foot = (
+        f'<div dir="rtl" style="color:#888;font-size:90%;margin-top:4px">{html.escape(note)}</div>'
+        if note
+        else ""
+    )
+    return (
+        f"{head}<table dir='rtl' style='border-collapse:collapse;font-size:95%'>"
+        f"<thead><tr>{th}</tr></thead><tbody>{''.join(body)}</tbody></table>{foot}"
+    )
