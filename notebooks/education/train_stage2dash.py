@@ -41,8 +41,7 @@ import time
 import numpy as np
 import tiny
 import torch
-
-from corpus import build_corpus, train_tokenizer, tokenize
+from corpus import build_corpus, tokenize, train_tokenizer
 
 # --------------------------------------------------------------------------- #
 # Module-level constant for the default output directory

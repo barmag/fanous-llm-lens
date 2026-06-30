@@ -45,8 +45,12 @@ def head_attention_kind(pattern, *, prev_bias: float = 0.5, bos_bias: float = 0.
     return "content"
 
 
-def seed_ids(encode, id_to_str, seed_words, freq: int = 2500) -> list[int]:
-    """Resolve seed words/tokens to in-vocab, frequent token ids (deduped, order-stable)."""
+def seed_ids(encode, id_to_str, seed_words, freq: int = 2500) -> list[int]:  # noqa: ARG001
+    """Resolve seed words/tokens to in-vocab, frequent token ids (deduped, order-stable).
+
+    `id_to_str` is unused here (resolution goes through `encode`) but kept in the signature
+    for symmetry with the other notebook-facing helpers, which all take (encode, id_to_str).
+    """
     out, seen = [], set()
     for w in seed_words:
         for tid in encode(w):

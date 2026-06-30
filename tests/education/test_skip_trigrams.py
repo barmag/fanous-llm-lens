@@ -77,7 +77,10 @@ def test_seeded_pool_restricts_sources():
 def test_seed_ids_resolves_in_vocab_tokens():
     model = _tiny_model(d_vocab=40)  # noqa: F841
     id_to_str = {i: f"t{i}" for i in range(40)}
-    encode = lambda s: [int(s[1:])] if s.startswith("t") else []
+
+    def encode(s):
+        return [int(s[1:])] if s.startswith("t") else []
+
     ids = st.seed_ids(encode, id_to_str, ["t3", "t7", "zzz"], freq=40)
     assert set(ids) == {3, 7}
 
