@@ -80,3 +80,23 @@ def test_seed_ids_resolves_in_vocab_tokens():
     encode = lambda s: [int(s[1:])] if s.startswith("t") else []
     ids = st.seed_ids(encode, id_to_str, ["t3", "t7", "zzz"], freq=40)
     assert set(ids) == {3, 7}
+
+
+def test_verify_triple_reports_lift_and_probabilities():
+    model = _tiny_model(d_vocab=40)
+    pool = st.candidate_pool(model, head=0, freq=40, top_n=5)
+    v = st.verify_triple(model, pool[0])
+    for key in ("p_full", "p_bigram", "lift", "verified"):
+        assert key in v
+    assert 0.0 <= v["p_full"] <= 1.0
+    assert 0.0 <= v["p_bigram"] <= 1.0
+    assert v["lift"] == v["p_full"] - v["p_bigram"]
+    assert isinstance(v["verified"], bool)
+
+
+def test_verify_pool_runs_topk():
+    model = _tiny_model(d_vocab=40)
+    pool = st.candidate_pool(model, head=0, freq=40, top_n=10)
+    verified = st.verify_pool(model, pool, top_k=3)
+    assert len(verified) == 3
+    assert all("lift" in v for v in verified)

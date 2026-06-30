@@ -89,3 +89,31 @@ def candidate_pool(
         out.append({"source": s, "dest": d, "output": o, "ov": ov, "qk": qk, "score": ov * qk})
     out.sort(key=lambda c: c["score"], reverse=True)
     return out[:top_n]
+
+
+def verify_triple(model, triple: dict, *, n_ctx: int | None = None) -> dict:
+    """Does the full model raise P(output) at the dest position above the bigram baseline?
+
+    Builds [source, source, ..., dest] (source repeated to fill context so attention has a
+    real earlier token to find), runs the forward pass with cache, and at the final (dest)
+    position compares softmax(full logits)[output] vs softmax(direct-path logits)[output].
+    The direct path is the context-blind bigram: resid_pre @ W_U + b_U.
+    """
+    import torch as _t
+
+    device = next(model.parameters()).device
+    ctx = n_ctx or min(8, model.cfg.n_ctx)
+    s, d, o = triple["source"], triple["dest"], triple["output"]
+    seq = [s] * (ctx - 1) + [d]
+    ids = _t.tensor([seq], device=device)
+    logits, cache = model.run_with_cache(ids)
+    direct = cache["resid_pre", 0] @ model.W_U + model.b_U
+    p_full = float(_t.softmax(logits[0, -1], -1)[o])
+    p_bigram = float(_t.softmax(direct[0, -1], -1)[o])
+    lift = p_full - p_bigram
+    return {**triple, "p_full": p_full, "p_bigram": p_bigram, "lift": lift, "verified": lift > 0}
+
+
+def verify_pool(model, pool: list[dict], *, top_k: int = 20) -> list[dict]:
+    """Verify the top_k candidates of a pool on held-out forward passes."""
+    return [verify_triple(model, c) for c in pool[:top_k]]
