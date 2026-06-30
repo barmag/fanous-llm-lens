@@ -43,3 +43,49 @@ def head_attention_kind(pattern, *, prev_bias: float = 0.5, bos_bias: float = 0.
     if prev >= prev_bias:
         return "prev_token"
     return "content"
+
+
+def seed_ids(encode, id_to_str, seed_words, freq: int = 2500) -> list[int]:
+    """Resolve seed words/tokens to in-vocab, frequent token ids (deduped, order-stable)."""
+    out, seen = [], set()
+    for w in seed_words:
+        for tid in encode(w):
+            if tid < freq and tid not in seen:
+                seen.add(tid)
+                out.append(int(tid))
+    return out
+
+
+def candidate_pool(
+    model,
+    *,
+    head: int,
+    freq: int = 2500,
+    include_self_copy: bool = False,
+    top_n: int = 100,
+    sources=None,
+) -> list[dict]:
+    """Rank skip-trigram triples (source, dest, output) for one head by a composite score.
+
+    score = OV[source, output] * QK[dest, source], over frequent tokens. For each source we
+    take its single best output (off-diagonal unless include_self_copy) and the destination
+    that most strongly routes attention to it. `sources` (a set of ids) makes this a seeded
+    pool; None scans all frequent sources (unsupervised).
+    """
+    QK, OV = head_circuits(model, head)
+    QK, OV = QK[:freq, :freq], OV[:freq, :freq]
+    src_iter = range(freq) if sources is None else sorted(s for s in sources if s < freq)
+    out = []
+    for s in src_iter:
+        ov_row = OV[s].clone()
+        if not include_self_copy:
+            ov_row[s] = float("-inf")  # forbid self-copy
+        o = int(torch.argmax(ov_row))
+        ov = float(ov_row[o])
+        if ov == float("-inf"):
+            continue
+        d = int(torch.argmax(QK[:, s]))  # destination routing attention to s
+        qk = float(QK[d, s])
+        out.append({"source": s, "dest": d, "output": o, "ov": ov, "qk": qk, "score": ov * qk})
+    out.sort(key=lambda c: c["score"], reverse=True)
+    return out[:top_n]
