@@ -199,14 +199,6 @@ if stage_arg in ("2dash", "all"):
         success = run_notebook("stage2_dash_skip_trigram_reference.ipynb", mock_stage2_dash)
         if not success:
             all_passed = False
-    if os.path.exists("stage2_dash_skip_trigram_bpe_experiment.ipynb"):
-        success = run_notebook("stage2_dash_skip_trigram_bpe_experiment.ipynb", mock_stage2_dash)
-        if not success:
-            all_passed = False
-    if os.path.exists("stage2_dash_skip_trigram_unigram_experiment.ipynb"):
-        success = run_notebook("stage2_dash_skip_trigram_unigram_experiment.ipynb", mock_stage2_dash)
-        if not success:
-            all_passed = False
 
 # Stage 2dash²
 if stage_arg in ("2dash2", "all"):
