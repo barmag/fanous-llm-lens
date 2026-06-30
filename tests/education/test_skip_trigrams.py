@@ -92,6 +92,7 @@ def test_verify_triple_reports_lift_and_probabilities():
     assert 0.0 <= v["p_bigram"] <= 1.0
     assert v["lift"] == v["p_full"] - v["p_bigram"]
     assert isinstance(v["verified"], bool)
+    assert v["verified"] == (v["lift"] > 0)
 
 
 def test_verify_pool_runs_topk():

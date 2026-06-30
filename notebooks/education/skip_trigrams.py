@@ -99,17 +99,16 @@ def verify_triple(model, triple: dict, *, n_ctx: int | None = None) -> dict:
     position compares softmax(full logits)[output] vs softmax(direct-path logits)[output].
     The direct path is the context-blind bigram: resid_pre @ W_U + b_U.
     """
-    import torch as _t
-
     device = next(model.parameters()).device
-    ctx = n_ctx or min(8, model.cfg.n_ctx)
+    ctx = min(8, model.cfg.n_ctx) if n_ctx is None else n_ctx
     s, d, o = triple["source"], triple["dest"], triple["output"]
     seq = [s] * (ctx - 1) + [d]
-    ids = _t.tensor([seq], device=device)
-    logits, cache = model.run_with_cache(ids)
-    direct = cache["resid_pre", 0] @ model.W_U + model.b_U
-    p_full = float(_t.softmax(logits[0, -1], -1)[o])
-    p_bigram = float(_t.softmax(direct[0, -1], -1)[o])
+    ids = torch.tensor([seq], device=device)
+    with torch.no_grad():
+        logits, cache = model.run_with_cache(ids)
+        direct = cache["resid_pre", 0] @ model.W_U + model.b_U
+        p_full = float(torch.softmax(logits[0, -1], -1)[o])
+        p_bigram = float(torch.softmax(direct[0, -1], -1)[o])
     lift = p_full - p_bigram
     return {**triple, "p_full": p_full, "p_bigram": p_bigram, "lift": lift, "verified": lift > 0}
 
