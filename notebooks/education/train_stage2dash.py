@@ -45,6 +45,12 @@ import torch
 from corpus import build_corpus, train_tokenizer, tokenize
 
 # --------------------------------------------------------------------------- #
+# Module-level constant for the default output directory
+# --------------------------------------------------------------------------- #
+_DEFAULT_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "checkpoints", "stage2dash")
+
+
+# --------------------------------------------------------------------------- #
 # Training
 # --------------------------------------------------------------------------- #
 def train(args):
@@ -55,7 +61,9 @@ def train(args):
 
     char_budget = args.corpus_chars or int(args.tokens * 4.2)  # ~chars/token headroom
     text = build_corpus(char_budget, os.path.join(out, "corpus.txt"))
-    tok = train_tokenizer(text, args.vocab, os.path.join(out, "tokenizer.json"))
+    tok = train_tokenizer(
+        text, args.vocab, os.path.join(out, "tokenizer.json"), kind=args.tokenizer
+    )
     vocab = tok.get_vocab_size()
     ids = tokenize(text, tok, os.path.join(out, "tokens.npy"))
     if len(ids) > args.tokens:
@@ -167,18 +175,27 @@ def train(args):
 
     if args.push_hub:
         from huggingface_hub import HfApi
+
         api = HfApi()
         api.create_repo(args.hf_repo, repo_type="model", exist_ok=True)
         for fn in ("tokenizer.json", "model.pt", "metrics.json"):
-            api.upload_file(path_or_fileobj=os.path.join(out, fn),
-                            path_in_repo=fn, repo_id=args.hf_repo, repo_type="model")
+            api.upload_file(
+                path_or_fileobj=os.path.join(out, fn),
+                path_in_repo=fn,
+                repo_id=args.hf_repo,
+                repo_type="model",
+            )
         print(f"[train] pushed checkpoint to https://huggingface.co/{args.hf_repo}")
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser()
-    p.add_argument("--tokens", type=int, default=500_000_000,
-                   help="token budget; Arabic Wikipedia exhausts first (~338M, 1 epoch)")
+    p.add_argument(
+        "--tokens",
+        type=int,
+        default=500_000_000,
+        help="token budget; Arabic Wikipedia exhausts first (~338M, 1 epoch)",
+    )
     p.add_argument("--vocab", type=int, default=12_000)
     p.add_argument("--n-ctx", type=int, default=512)
     p.add_argument("--d-model", type=int, default=512)
@@ -189,24 +206,36 @@ def main():
         "--steps", type=int, default=0, help="override step count (0 = derive from tokens)"
     )
     p.add_argument("--corpus-chars", type=int, default=0, help="override char budget (0 = auto)")
-    p.add_argument(
-        "--out",
-        default=os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "checkpoints", "stage2dash"
-        ),
-    )
+    p.add_argument("--out", default=_DEFAULT_OUT)
     p.add_argument(
         "--calibrate", action="store_true", help="short run: project throughput then stop"
     )
     p.add_argument("--calibrate-steps", type=int, default=200)
-    p.add_argument("--push-hub", action="store_true", help="upload checkpoint to the HF Hub (needs login)")
-    p.add_argument("--hf-repo", default="yassermakram/fanous-stage2dash-attn-only-1l",
-                   help="HF repo id for --push-hub (must match HF_REPO in the notebook)")
-    args = p.parse_args()
+    p.add_argument(
+        "--push-hub", action="store_true", help="upload checkpoint to the HF Hub (needs login)"
+    )
+    p.add_argument(
+        "--hf-repo",
+        default="yassermakram/fanous-stage2dash-attn-only-1l",
+        help="HF repo id for --push-hub (must match HF_REPO in the notebook)",
+    )
+    p.add_argument(
+        "--tokenizer",
+        choices=["bpe", "unigram"],
+        default="bpe",
+        help="tokenizer algorithm; 'unigram' defaults --out to stage2dash_unigram/",
+    )
+    return p
+
+
+def main():
     # make `import tiny` work from anywhere
     import sys
 
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    args = build_parser().parse_args()
+    if args.tokenizer == "unigram" and args.out == _DEFAULT_OUT:
+        args.out = os.path.join(os.path.dirname(_DEFAULT_OUT), "stage2dash_unigram")
     train(args)
 
 

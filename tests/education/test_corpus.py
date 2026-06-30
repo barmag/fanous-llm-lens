@@ -49,3 +49,13 @@ def test_train_tokenizer_defaults_to_bpe(tmp_path):
     out = tmp_path / "bpe.json"
     tok = corpus.train_tokenizer(text, vocab_size=120, out_path=str(out))
     assert out.exists() and tok.get_vocab_size() <= 120
+
+
+def test_train_stage2dash_exposes_tokenizer_flag():
+    import importlib
+
+    m = importlib.import_module("train_stage2dash")
+    parser = m.build_parser()
+    args = parser.parse_args(["--tokenizer", "unigram"])
+    assert args.tokenizer == "unigram"
+    assert parser.parse_args([]).tokenizer == "bpe"
