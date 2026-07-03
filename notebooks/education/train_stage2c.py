@@ -135,7 +135,8 @@ def train(args):
     text = build_corpus(char_budget, os.path.join(out, "corpus.txt"))
     tok = train_tokenizer(text, args.vocab, os.path.join(out, "tokenizer.json"))
     vocab = tok.get_vocab_size()
-    ids = tokenize(text, tok, os.path.join(out, "tokens.npy"))
+    # cache keyed on vocab so a --vocab change can't silently reuse stale ids
+    ids = tokenize(text, tok, os.path.join(out, f"tokens_v{vocab}.npy"))
     epochs = args.tokens / max(len(ids), 1)
     print(
         f"[train] {len(ids):,} corpus tokens, vocab={vocab}, "
@@ -159,6 +160,17 @@ def train(args):
     )
     n_params = sum(p.numel() for p in model.parameters())
     print(f"[train] model params: {n_params:,}")
+    config = {
+        "n_layers": 2,
+        "n_heads": args.n_heads,
+        "d_model": args.d_model,
+        "d_head": args.d_model // args.n_heads,
+        "d_vocab": vocab,
+        "n_ctx": args.n_ctx,
+        "attn_only": True,
+        "normalization_type": norm,
+        "positional_embedding_type": args.pos,
+    }
 
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.05, betas=(0.9, 0.99))
     steps = args.steps or (args.tokens // (args.batch * args.n_ctx))
@@ -215,7 +227,9 @@ def train(args):
                 flush=True,
             )
         if step > 0 and step % 1000 == 0:
-            torch.save(model.state_dict(), inprogress)
+            # same payload as the final save so a gate-failed or crashed run
+            # leaves weights the notebook's load cell can read directly
+            torch.save({"state_dict": model.state_dict(), "config": config}, inprogress)
         if args.calibrate and step >= args.calibrate_steps:
             dt = time.time() - t0
             tps = tokens_seen / dt
@@ -232,31 +246,7 @@ def train(args):
     passed, layer, head = tiny.induction_gate(ind, args.induction_threshold)
     best = float(ind.max())
     print(f"[gate] best induction score {best:.3f} at layer {layer} head {head}")
-    if not passed:
-        raise SystemExit(
-            f"[gate] FAILED: best induction score {best:.3f} < {args.induction_threshold}. "
-            f"No induction head formed — checkpoint NOT saved."
-        )
 
-    torch.save(
-        {
-            "state_dict": model.state_dict(),
-            "config": {
-                "n_layers": 2,
-                "n_heads": args.n_heads,
-                "d_model": args.d_model,
-                "d_head": args.d_model // args.n_heads,
-                "d_vocab": vocab,
-                "n_ctx": args.n_ctx,
-                "attn_only": True,
-                "normalization_type": norm,
-                "positional_embedding_type": args.pos,
-            },
-        },
-        os.path.join(out, "model.pt"),
-    )
-    if os.path.exists(inprogress):
-        os.remove(inprogress)
     try:
         sha = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode().strip()
     except Exception:
@@ -275,9 +265,21 @@ def train(args):
         "induction_scores": ind.tolist(),
         "best_induction_score": best,
         "induction_head": [layer, head],
+        "gate_passed": passed,
     }
     with open(os.path.join(out, "metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
+
+    if not passed:
+        raise SystemExit(
+            f"[gate] FAILED: best induction score {best:.3f} < {args.induction_threshold}. "
+            f"No induction head formed — model.pt NOT saved (metrics.json written; "
+            f"last periodic weights remain in {inprogress})."
+        )
+
+    torch.save({"state_dict": model.state_dict(), "config": config}, os.path.join(out, "model.pt"))
+    if os.path.exists(inprogress):
+        os.remove(inprogress)
     print(f"[train] done: {json.dumps(metrics, indent=2)}")
 
 
@@ -337,8 +339,10 @@ def main():
         default=0.2,
         help="min best induction score required to save the checkpoint. 0.2 is "
         "calibrated for TinyStories: the 200M-token run phase-changes at ~1000 "
-        "steps and plateaus at ~0.22 (~55x the 1/250 random-attention baseline); "
-        "dash2's 0.4 was calibrated on its higher-entropy Arabic 12k-vocab corpus",
+        "steps and plateaus at ~0.22, about 15x the ~1/73 attention a uniform "
+        "causal head would put on the induction stripe in the eval's 100-token "
+        "sequences; dash2's 0.4 was calibrated on its higher-entropy Arabic "
+        "12k-vocab corpus",
     )
     args = p.parse_args()
     # make `import tiny` work from anywhere
