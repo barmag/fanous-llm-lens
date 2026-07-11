@@ -147,6 +147,15 @@ def train(args):
     data = torch.from_numpy(ids[: n * args.n_ctx].astype(np.int64)).reshape(n, args.n_ctx)
     print(f"[train] sequences: {tuple(data.shape)}")
 
+    # Fixed held-out batch for a low-variance loss reading: the per-step training
+    # loss below is a single args.batch-sequence minibatch and is dominated by
+    # sampling noise (diagnosed 2026-07-11 — bumps of similar size to any
+    # candidate "phase change" appear uniformly throughout a run). Excluded from
+    # the training sampling pool so eval_loss is a genuine held-out signal.
+    eval_n = min(256, max(1, n // 4))
+    train_pool = n - eval_n
+    eval_batch = data[train_pool:].to(device)
+
     norm = None if args.norm == "none" else args.norm
     model = tiny.make_tiny_model(
         n_layers=2,
@@ -193,9 +202,11 @@ def train(args):
     t0 = time.time()
     tokens_seen = 0
     losses = []
+    eval_losses = []
+    induction_curve = []
     inprogress = os.path.join(out, "model_inprogress.pt")
     for step in range(steps):
-        idx = torch.randint(0, data.shape[0], (args.batch,), generator=g)
+        idx = torch.randint(0, train_pool, (args.batch,), generator=g)
         batch = data[idx].to(device)
         for pg in opt.param_groups:
             pg["lr"] = args.lr * lr_at(step)
@@ -208,19 +219,26 @@ def train(args):
         tokens_seen += args.batch * args.n_ctx
         if step % 50 == 0 or step == steps - 1:
             losses.append((step, float(loss)))
+            model.eval()
+            with torch.no_grad(), amp:
+                eval_loss = float(model(eval_batch, return_type="loss"))
+            model.train()
+            eval_losses.append((step, eval_loss))
             dt = time.time() - t0
             tps = tokens_seen / max(dt, 1e-9)
             eta = (steps - step - 1) * (dt / max(step + 1, 1)) / 60
             print(
                 f"  step {step:>6}/{steps}  loss={float(loss):.3f}  "
+                f"eval_loss={eval_loss:.3f}  "
                 f"{tps:,.0f} tok/s  eta {eta:.1f} min",
                 flush=True,
             )
-        if step % 500 == 0 or step == steps - 1:
+        if step % args.induction_every == 0 or step == steps - 1:
             model.eval()
             ind = tiny.induction_scores(model)
             model.train()
             best = float(ind.max())
+            induction_curve.append((step, best))
             print(
                 f"  [induction] step {step:>6}  best={best:.3f}  "
                 f"L1={[round(float(v), 3) for v in ind[1]]}",
@@ -266,6 +284,9 @@ def train(args):
         "best_induction_score": best,
         "induction_head": [layer, head],
         "gate_passed": passed,
+        "loss_curve": losses,
+        "eval_loss_curve": eval_losses,
+        "induction_curve": induction_curve,
     }
     with open(os.path.join(out, "metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
@@ -332,6 +353,13 @@ def main():
         "--bf16",
         action="store_true",
         help="bf16 autocast for the forward (params stay fp32); recommended on GPU",
+    )
+    p.add_argument(
+        "--induction-every",
+        type=int,
+        default=500,
+        help="steps between induction-score evals during training (denser = finer "
+        "localization of the phase transition, at the cost of extra eval passes)",
     )
     p.add_argument(
         "--induction-threshold",
