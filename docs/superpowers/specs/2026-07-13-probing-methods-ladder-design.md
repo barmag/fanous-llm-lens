@@ -24,9 +24,10 @@ rung teaches; the notebooks make the *method* that produced them legible and re-
   Reuses the ladder's infrastructure: `tiny.py` (tiny models / device probe),
   `corpus.py` (MSA Wikipedia + Masri EG-tweets streaming), `verify_notebooks.py`
   (end-to-end smoke test).
-- **Rung prefix:** `probe_*`, sitting alongside `stage2_*`. Each rung ships a
-  `*_reference` notebook (fully worked) and a `*_experiment` notebook (key cells hollowed
-  to `# TODO` for self-study), matching the existing pattern.
+- **Rung prefix:** `probe_*`, sitting alongside `stage2_*`. Each rung ships **one
+  fully-worked `*_reference` notebook** — no `*_experiment` twin (reference-only going
+  forward, decided 2026-07-13). `probe_a` retains the twin it shipped with; **p_b onward
+  are reference-only.**
 - **Bilingual / RTL:** Arabic text blocks use `display(HTML(..., dir="rtl"))`; markdown is
   pedagogical (no process/meta talk about repo conventions).
 - **Runtime bar:** each reference notebook runs end-to-end on a single seed in <10 min on
@@ -87,7 +88,8 @@ signal — we measure it and let the numbers pick the rung's headline feature.
    pedagogical payload, closing on the trained-vs-tokenization caveat and a recap/handoff
    to p_b.
 
-The `_experiment` twin hollows the probe-fitting and control cells to `# TODO`.
+(`probe_a` shipped a `_experiment` twin that hollows the probe-fitting and control cells to
+`# TODO`; this was the last twin — p_b onward are reference-only, see *Placement & conventions*.)
 
 ## Scaffold artifacts (this session)
 

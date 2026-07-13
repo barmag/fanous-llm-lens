@@ -90,6 +90,10 @@ notebook, work this way:
 - **One concept at a time.** Build up piece by piece, watching each idea land — a runnable,
   inspectable cell — before adding the next. No cell should assume something the reader hasn't
   already seen work.
+- **Education notebooks are reference-only.** Each rung on the education / probing ladders
+  (`stage*_`, `probe_*`) ships **one fully-worked `*_reference` notebook** — no hollowed
+  `*_experiment` twin. (Decided 2026-07-13. Earlier stage1/stage2 rungs and `probe_a` carry
+  legacy twins; new rungs don't add them.)
 - **Paper-hooked sections.** Open each section with what the reference did and *why it matters
   for what we're building here*, not just what the code does.
 - **Smoke-test before you commit to cost.** Look at 5 rows before pulling the full corpus;

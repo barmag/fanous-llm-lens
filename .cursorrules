@@ -45,6 +45,7 @@ Two distinct audiences — design choices should serve both:
 
 ## Building experiments (from-scratch reproductions)
 - Build up piece by piece — one concept per runnable, inspectable cell; each idea lands before the next is added
+- Education-ladder rungs (`stage*_`, `probe_*`) ship one fully-worked `*_reference` notebook only — no `*_experiment` twin (reference-only since 2026-07-13; legacy twins remain)
 - Paper-hooked markdown: say what the reference did and why it matters here, per section
 - Smoke-test before cost: look at 5 rows before pulling a full corpus; measure tokens/sec on ~30 steps before a real run
 - Split long cells into numbered, individually re-runnable steps (`3a`, `3b`, …)
