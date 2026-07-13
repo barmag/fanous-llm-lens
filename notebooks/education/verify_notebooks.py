@@ -105,8 +105,8 @@ def mock_stage2_c(ctx):
     # (won't form a clean induction head at these sizes, but must run), no-op plotly.
     import plotly.graph_objects as go
 
-    ctx["STEPS"] = 30          # synthetic induction training steps
-    ctx["MAX_CHARS"] = 15000   # Arabic corpus
+    ctx["STEPS"] = 30  # synthetic induction training steps
+    ctx["MAX_CHARS"] = 15000  # Arabic corpus
     ctx["N_CTX_AR"] = 16
     ctx["N_EPOCHS"] = 2
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
@@ -140,6 +140,18 @@ def mock_stage2_d(ctx):
     ctx["MAX_CHARS"] = 15000
     ctx["N_CTX"] = 16
     ctx["N_EPOCHS"] = 2
+    go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
+
+
+def mock_probe_a(ctx):
+    # probe_a: zero-layer probe. FORCE_SYNTHETIC swaps the streamed MSA/Masri corpus
+    # and the mGPT encoder for a network-free synthetic corpus + whitespace encoder,
+    # so CI needs no HuggingFace download. Shrink training + no-op plotly.
+    import plotly.graph_objects as go
+
+    ctx["FORCE_SYNTHETIC"] = True
+    ctx["MAX_STEPS"] = 30
+    ctx["D_MODEL"] = 32
     go.Figure.show = lambda self: print("  [Mock] plotly.Figure.show() called.")
 
 
@@ -203,7 +215,9 @@ if stage_arg in ("2dash", "all"):
 # Stage 2dash²
 if stage_arg in ("2dash2", "all"):
     if os.path.exists("stage2_dash2_composition_induction_reference.ipynb"):
-        success = run_notebook("stage2_dash2_composition_induction_reference.ipynb", mock_stage2_dash2)
+        success = run_notebook(
+            "stage2_dash2_composition_induction_reference.ipynb", mock_stage2_dash2
+        )
         if not success:
             all_passed = False
 
@@ -211,6 +225,13 @@ if stage_arg in ("2dash2", "all"):
 if stage_arg in ("2a", "all"):
     if os.path.exists("stage2_a_single_block_reference.ipynb"):
         success = run_notebook("stage2_a_single_block_reference.ipynb", mock_stage2_a)
+        if not success:
+            all_passed = False
+
+# probe_a
+if stage_arg in ("probe_a", "all"):
+    if os.path.exists("probe_a_linear_reference.ipynb"):
+        success = run_notebook("probe_a_linear_reference.ipynb", mock_probe_a)
         if not success:
             all_passed = False
 
