@@ -124,6 +124,21 @@ reference end-to-end as a smoke test.
 | 2dash² | [`stage2_dash2_composition_induction`](notebooks/education/stage2_dash2_composition_induction_reference.ipynb) | **+ a faithful-scale second layer** — the full composition algebra (Q/K/V-composition, virtual heads, term importance, eigenvalue copying) culminating in an **induction head proven to be the K-composition path**, on real Arabic. The two-layer counterpart to 2dash. |
 | 2d | [`stage2_d_mlp`](notebooks/education/stage2_d_mlp_reference.ipynb) | **+ the MLP** — completes the block; proven per-position (no token-mixing), bridging to features / SAEs. |
 
+### From-scratch reproductions — [`notebooks/in_context_learning/`](notebooks/in_context_learning/)
+
+Alongside the bilingual ladder, a track of research notebooks that **rebuild a published result
+from zero, one concept at a time**. The method *is* the point: each idea gets a runnable,
+inspectable cell and a paper-hooked markdown note before the next is added; datasets are
+smoke-tested (look at 5 rows) before they're pulled in full; runs are calibrated (measure
+tokens/sec on ~30 steps) before they're launched; long cells split into numbered,
+individually re-runnable steps; every heavy step is checkpoint-cached so re-runs stay fast; and
+config numbers come from the primary source, not memory. Honest negative results are reported,
+not gated away — a weak test names *why* it's weak, and that gap designs the next notebook.
+
+| Notebook | What it rebuilds |
+|---|---|
+| [`icl_from_scratch`](notebooks/in_context_learning/icl_from_scratch.ipynb) | Olsson et al. 2022 (*In-Context Learning and Induction Heads*) from zero — a 2-layer attention-only transformer trained on a Pile-like corpus (`monology/pile-uncopyrighted`), instrumented with the paper's own diagnostics. Reproduces the loss ↔ ICL-score phase change, the `Loss(n_train, i_ctx)` heatmaps, and a depth/MLP architecture sweep. Grew out of the honest negative in `stage2c_induction_tinystories.ipynb`, closing the two gaps that notebook named (proxy metric, code-free corpus). |
+
 ## Roadmap
 
 **Phase 0 — Foundation** *(complete 2026-04-30)*
@@ -136,7 +151,7 @@ prior ML background. Each phase ends where the next one needs to begin — no no
 assumes vocabulary the reader has not already met. The interpretability findings are
 real; the *path to them* is the point.
 
-**Phase 1 — On-ramp: from text to a transformer, in Masri** *(current)*
+**Phase 1 — On-ramp: from text to a transformer, in Masri** *(complete 2026-05-06)*
 
 *By the end of this phase, the reader knows what a tokenizer is, what a small
 transformer is made of, and what its layers actually do — using Masri prompts at
@@ -146,10 +161,10 @@ the next phase needs.*
 - [x] **Tokenizer comparison.** How do Pythia / GPT-2 / mGPT tokenise English / MSA / Masri? *([`notebooks/01-tokenizer-comparison-msa-masri.ipynb`](notebooks/01-tokenizer-comparison-msa-masri.ipynb), 2026-05-02 — gpt2 charges Arabic 2.59× the English rate, pythia 1.99×, mGPT ~1.0×; within Arabic, mGPT spends ~7.4% more on Masri than MSA.)*
 - [x] **Tokenization-101, bilingual.** What is a subword tokenizer, by hand, for a Masri-reading audience. *([`notebooks/02-tokenization-101-masri.ipynb`](notebooks/02-tokenization-101-masri.ipynb).)*
 - [x] **Reproducible prompt set.** English + MSA + Masri triples in `eval/`. *([`eval/prompts/msa-masri-pairs-v1.json`](eval/prompts/msa-masri-pairs-v1.json) — 30 hand-crafted minimal triples across 8 categories; schema v1.1 added an English baseline so tokenizer comparisons can disentangle "Arabic is hard" from "Masri is hard for an MSA-trained vocab".)*
-- [ ] **nb03 — "What's inside the box?"** Bilingual visual tour of a small transformer: a Masri prompt enters as token IDs, becomes embedding vectors, flows through attention + MLP layers as a residual stream, exits as a probability distribution over the next token. Names the parts; runs no experiments.
-- [ ] **nb04 — "What does the model see at each layer?"** Logit lens on a Masri prompt: at every layer, project the residual stream to vocab space and watch the model's running best-guess evolve. Reader gets a felt sense that layers *do* something, before any formal interpretability vocabulary lands.
+- [x] **nb03 — "What's inside the box?"** Bilingual visual tour of a small transformer: a Masri prompt enters as token IDs, becomes embedding vectors, flows through attention + MLP layers as a residual stream, exits as a probability distribution over the next token. Names the parts; runs no experiments. *([`notebooks/03-whats-inside-the-box-masri.ipynb`](notebooks/03-whats-inside-the-box-masri.ipynb).)*
+- [x] **nb04 — "What does the model see at each layer?"** Logit lens on a Masri prompt: at every layer, project the residual stream to vocab space and watch the model's running best-guess evolve. Reader gets a felt sense that layers *do* something, before any formal interpretability vocabulary lands. *([`notebooks/04-logit-lens-masri.ipynb`](notebooks/04-logit-lens-masri.ipynb).)*
 
-**Phase 2 — Looking inside: probes, circuits, features**
+**Phase 2 — Looking inside: probes, circuits, features** *(current)*
 
 *With Phase 1's vocabulary in hand, the reader is ready for actual interpretability
 methods. Each method gets a Masri-grounded application after an English / MSA
@@ -157,7 +172,9 @@ baseline the reader can sanity-check against the literature.*
 
 - [x] **Architecture ladder, from scratch.** Build a transformer one component at a time on Arabic — embeddings → attention block → multi-head → depth → MLP — culminating in an **induction head reproduced from scratch** (the 2021 framework's capstone circuit). *(See the [education ladder](notebooks/education/) above: Stage 1a–1c + Stage 2a–2d.)*
 - [x] **Two-layer composition & induction, faithful scale.** The framework paper's two-layer attention-only result reproduced rigorously on real Arabic — composition algebra + an induction head verified to emerge (induction-score gate). *(See [`stage2_dash2_composition_induction`](notebooks/education/stage2_dash2_composition_induction_reference.ipynb); offline trainer `train_stage2dash2.py`.)*
-- [ ] **nb05 — Does the model know it's reading Masri?** Train a linear probe on residual-stream activations at every layer to classify MSA vs Masri. Output: one plot of probe accuracy vs depth. The first real interpretability finding on dialect.
+- [x] **In-context learning, from scratch.** Olsson et al. 2022 rebuilt from zero — a 2-layer attention-only transformer trained on a Pile-like corpus, instrumented with the paper's own loss/ICL-score diagnostics. Reproduces the loss ↔ ICL-score phase change and the `Loss(n_train, i_ctx)` heatmaps, plus a depth/MLP architecture sweep. *(See [`icl_from_scratch`](notebooks/in_context_learning/icl_from_scratch.ipynb); merged 2026-07-13.)*
+- [x] **nb06 — Does the model attend to Masri differently?** Layer-wise attention-pattern divergence (MSA vs Masri) on Pythia-160m, using TransformerLens. Output: a per-layer divergence heatmap + summary — the first dialect-aware interpretability finding. *([`notebooks/06-attention-probe-pythia.ipynb`](notebooks/06-attention-probe-pythia.ipynb), 2026-05-24.)*
+- [ ] **nb05 — Does the model *encode* that it's reading Masri?** Train a linear probe on residual-stream activations at every layer to classify MSA vs Masri. Output: one plot of probe accuracy vs depth — the residual-stream complement to nb06's attention-pattern view.
 - [ ] **Circuit reproduction.** Reproduce one published circuit (e.g., IOI-style on Pythia-160m) on English first, as a baseline.
 - [ ] **Apply the same circuit lens to Masri inputs.** Does the circuit fire? Misfire? Degrade gracefully? This is the dialect-aware contribution.
 

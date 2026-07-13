@@ -43,6 +43,16 @@ Two distinct audiences — design choices should serve both:
 - Default visualisations to plotly + CircuitsVis; matplotlib only when no interactivity is needed
 - Reproducibility: pin random seeds, log model + dataset commit SHAs in experiment outputs
 
+## Building experiments (from-scratch reproductions)
+- Build up piece by piece — one concept per runnable, inspectable cell; each idea lands before the next is added
+- Paper-hooked markdown: say what the reference did and why it matters here, per section
+- Smoke-test before cost: look at 5 rows before pulling a full corpus; measure tokens/sec on ~30 steps before a real run
+- Split long cells into numbered, individually re-runnable steps (`3a`, `3b`, …)
+- Config numbers from the primary source (`config.json` / paper), not memory
+- Idempotent + checkpoint-cached (corpus, tokenizer, tokens, `model.pt`) so re-runs stay fast; snapshot long runs
+- Honest negatives are results: no hard pass/fail gate; report the metric, and name *why* a weak test is weak
+- Canonical example: `notebooks/in_context_learning/icl_from_scratch.ipynb`
+
 ## What to avoid
 - CUDA-only assumptions (no `xformers`, no `flash-attn` v2 unless ROCm port verified)
 - 70B+ model serving experiments — wrong substrate, wrong project

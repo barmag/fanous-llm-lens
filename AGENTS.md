@@ -79,6 +79,34 @@ The goal is twofold:
 - Commit message names the result, not just the change ("circuit X reproduces in Pythia-160m"
   not "add notebook")
 
+## Building an experiment — piece by piece toward the idea
+
+Our from-scratch reproductions (canonically
+`notebooks/in_context_learning/icl_from_scratch.ipynb`, which rebuilds Olsson et al. 2022's
+induction-head result on a Pile-like corpus) follow a deliberate pedagogy: the *path* to the
+result is as much the artefact as the result. When building a reproduction or a training
+notebook, work this way:
+
+- **One concept at a time.** Build up piece by piece, watching each idea land — a runnable,
+  inspectable cell — before adding the next. No cell should assume something the reader hasn't
+  already seen work.
+- **Paper-hooked sections.** Open each section with what the reference did and *why it matters
+  for what we're building here*, not just what the code does.
+- **Smoke-test before you commit to cost.** Look at 5 rows before pulling the full corpus;
+  measure tokens/sec on ~30 steps before launching the real run. Evidence, not guesses.
+- **Small, single-purpose, re-runnable cells.** When a cell grows hard to scan, split it into
+  numbered steps (`3a`, `3b`, …) that each guard their own work, so any one can be read — and
+  re-run — on its own.
+- **Verify against the primary source, not memory.** Borrow config numbers from the real
+  `config.json` / paper text, and say so in the markdown.
+- **Idempotent + checkpoint-cached.** A heavy training notebook reconciles the <10-min bar by
+  caching corpus, tokenizer, tokens, and `model.pt`: the *first* pass is slow, every re-run is
+  fast. Long runs snapshot periodically so a killed kernel loses little.
+- **Honest negatives are results.** No hard pass/fail gate that would make a negative
+  unobservable — always save, then report whatever the metric turns out to be. When a test is
+  weak, name *why* (measured a proxy, wrong corpus) rather than claiming a refutation; that
+  named gap becomes the next notebook's design.
+
 ## What to ask the user about
 
 - New external dependencies (don't add them unilaterally)
