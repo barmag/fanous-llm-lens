@@ -32,7 +32,9 @@ DEFAULT_SEED = 0
 #    Dialect is a *sentence-level* label — no morphological gold needed — so it
 #    is the cleanest feature to teach "what is a probe" on.
 # --------------------------------------------------------------------------- #
-def load_dialect_corpus(max_msa: int = 20_000, max_masri: int = 10_000) -> dict:
+def load_dialect_corpus(
+    max_msa: int = 20_000, max_masri: int = 10_000, cache_path: str | None = None
+) -> dict:
     """Stream MSA (Arabic Wikipedia) + Masri (EG tweets); return labelled sentences.
 
     Mirrors src/fanous_lens/tokenizers/corpora.load_corpora but self-contained so
@@ -42,7 +44,20 @@ def load_dialect_corpus(max_msa: int = 20_000, max_masri: int = 10_000) -> dict:
 
     Masri is label 1 (the register the project cares about). Registers are
     interleaved by the caller if a shuffle is wanted (do it with a fixed seed).
+
+    If ``cache_path`` is given, the (streamed, slow) corpus is written there as JSON
+    on the first pass and reloaded instantly on every re-run — the notebook's
+    idempotent <10-min bar.
     """
+    import json
+    import os
+
+    if cache_path and os.path.exists(cache_path):
+        with open(cache_path, encoding="utf-8") as f:
+            blob = json.load(f)
+        print(f"[corpus] cache hit: {len(blob['sentences']):,} sentences from {cache_path}")
+        return {"sentences": blob["sentences"], "register": np.array(blob["register"], dtype=int)}
+
     from datasets import load_dataset
 
     msa: list[str] = []
@@ -69,6 +84,16 @@ def load_dialect_corpus(max_msa: int = 20_000, max_masri: int = 10_000) -> dict:
 
     sentences = msa + masri
     register = np.array([0] * len(msa) + [1] * len(masri), dtype=int)
+    if cache_path:
+        import json
+        import os
+
+        os.makedirs(os.path.dirname(cache_path) or ".", exist_ok=True)
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {"sentences": sentences, "register": register.tolist()}, f, ensure_ascii=False
+            )
+        print(f"[corpus] cached {len(sentences):,} sentences -> {cache_path}")
     return {"sentences": sentences, "register": register}
 
 
@@ -109,13 +134,29 @@ class ZeroLayerConfig:
     device: str = field(default_factory=lambda: "cuda" if torch.cuda.is_available() else "cpu")
 
 
-def train_zero_layer(cfg: ZeroLayerConfig, token_ids: list[int], log_every: int = 0) -> dict:
+def train_zero_layer(
+    cfg: ZeroLayerConfig, token_ids: list[int], log_every: int = 0, cache_path: str | None = None
+) -> dict:
     """Train a ZeroLayerModel on a flat id stream; return {model, losses, final_loss}.
 
     Sampled-batch SGD over next-token prediction. `token_ids` is one long list of
     compact ids (see make_compact_encoder in tiny.py). Fast on the iGPU; the point
     is only to *reshape W_E*, not to reach a strong LM.
+
+    If ``cache_path`` is given, a matching checkpoint (same vocab/d_model) is loaded
+    instead of retraining; otherwise training runs and the result is saved there.
     """
+    import os
+
+    if cache_path and os.path.exists(cache_path):
+        ckpt = torch.load(cache_path, map_location=cfg.device, weights_only=False)
+        if ckpt["vocab_size"] == cfg.vocab_size and ckpt["d_model"] == cfg.d_model:
+            model = ZeroLayerModel(cfg.vocab_size, cfg.d_model, max_len=cfg.seq_len).to(cfg.device)
+            model.load_state_dict(ckpt["state_dict"])
+            print(f"[model] cache hit: final_loss={ckpt['final_loss']:.3f} from {cache_path}")
+            return {"model": model, "losses": ckpt["losses"], "final_loss": ckpt["final_loss"]}
+        print(f"[model] cache mismatch (vocab/d_model changed) — retraining {cache_path}")
+
     torch.manual_seed(cfg.seed)
     ids = torch.as_tensor(token_ids, dtype=torch.long)
     n_windows = ids.shape[0] // cfg.seq_len
@@ -139,6 +180,19 @@ def train_zero_layer(cfg: ZeroLayerConfig, token_ids: list[int], log_every: int 
         losses.append(float(loss.detach()))
         if log_every and ((step + 1) % log_every == 0 or (step + 1) == cfg.max_steps):
             print(f"  step {step + 1:>5}/{cfg.max_steps}  loss={losses[-1]:.3f}")
+    if cache_path:
+        os.makedirs(os.path.dirname(cache_path) or ".", exist_ok=True)
+        torch.save(
+            {
+                "state_dict": model.state_dict(),
+                "vocab_size": cfg.vocab_size,
+                "d_model": cfg.d_model,
+                "losses": losses,
+                "final_loss": losses[-1],
+            },
+            cache_path,
+        )
+        print(f"[model] cached -> {cache_path}")
     return {"model": model, "losses": losses, "final_loss": losses[-1]}
 
 
@@ -207,7 +261,18 @@ def make_controls(texts: list[str], seed: int = DEFAULT_SEED) -> dict[str, np.nd
 # 5. Network-free fixtures — used by verify_notebooks.py so the reference runs
 #    in seconds in CI without streaming HuggingFace datasets or loading mGPT.
 # --------------------------------------------------------------------------- #
-_SYNTH_MSA = ["الكتاب", "المدرسة", "الجامعة", "العلم", "المعرفة", "البحث", "الدراسة", "القراءة", "الفكرة", "النظرية"]
+_SYNTH_MSA = [
+    "الكتاب",
+    "المدرسة",
+    "الجامعة",
+    "العلم",
+    "المعرفة",
+    "البحث",
+    "الدراسة",
+    "القراءة",
+    "الفكرة",
+    "النظرية",
+]
 _SYNTH_MASRI = ["عايز", "ازيك", "يلا", "خالص", "كده", "اهو", "معلش", "يعني", "بجد", "قوي"]
 
 
