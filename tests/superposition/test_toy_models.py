@@ -79,3 +79,20 @@ def test_relu_is_nonnegative_linear_can_be_negative():
         lin_model.W.copy_(relu_model.W)
     assert relu_model(x).min().item() >= 0.0
     assert lin_model(x).min().item() < 0.0
+
+
+def test_train_reduces_loss():
+    lib = load_lib()
+    torch.manual_seed(0)
+    model = lib["ToyModel"](3, 2, use_relu=True)
+    imp = lib["importance_weights"](3)
+    losses = lib["train"](model, sparsity=0.0, importance=imp, steps=1000, seed=0)
+    assert losses[-1] < losses[0]
+
+
+def test_feature_norms_shape():
+    lib = load_lib()
+    model = lib["ToyModel"](5, 2)
+    fn = lib["feature_norms"](model)
+    assert fn.shape == (5,)
+    assert (fn >= 0).all()
