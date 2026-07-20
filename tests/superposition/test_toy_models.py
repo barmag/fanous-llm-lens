@@ -96,3 +96,14 @@ def test_feature_norms_shape():
     fn = lib["feature_norms"](model)
     assert fn.shape == (5,)
     assert (fn >= 0).all()
+
+
+def test_sparse_represents_more_than_dense():
+    lib = load_lib()
+    torch.manual_seed(0)
+    imp = lib["importance_weights"](5)
+    dense = lib["ToyModel"](5, 2, use_relu=True)
+    sparse = lib["ToyModel"](5, 2, use_relu=True)
+    lib["train"](dense, sparsity=0.0, importance=imp, steps=4000, seed=0)
+    lib["train"](sparse, sparsity=0.9, importance=imp, steps=4000, seed=0)
+    assert lib["count_represented"](sparse) > lib["count_represented"](dense)
