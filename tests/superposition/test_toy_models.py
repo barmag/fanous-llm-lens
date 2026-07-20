@@ -50,3 +50,32 @@ def test_importance_decay():
     assert imp.shape == (5,)
     assert abs(imp[0].item() - 1.0) < 1e-6
     assert abs(imp[3].item() - 0.7 ** 3) < 1e-6
+
+
+def test_toymodel_param_shapes():
+    lib = load_lib()
+    model = lib["ToyModel"](n_features=5, n_hidden=2)
+    assert tuple(model.W.shape) == (2, 5)
+    assert tuple(model.b.shape) == (5,)
+
+
+def test_toymodel_forward_shape():
+    lib = load_lib()
+    model = lib["ToyModel"](n_features=5, n_hidden=2)
+    x = torch.rand(7, 5)
+    assert tuple(model(x).shape) == (7, 5)
+
+
+def test_relu_is_nonnegative_linear_can_be_negative():
+    lib = load_lib()
+    torch.manual_seed(0)
+    x = torch.rand(32, 5)
+    relu_model = lib["ToyModel"](5, 2, use_relu=True)
+    lin_model = lib["ToyModel"](5, 2, use_relu=False)
+    # force a negative bias so the pre-activation has negative entries
+    with torch.no_grad():
+        relu_model.b.fill_(-1.0)
+        lin_model.b.copy_(relu_model.b)
+        lin_model.W.copy_(relu_model.W)
+    assert relu_model(x).min().item() >= 0.0
+    assert lin_model(x).min().item() < 0.0
