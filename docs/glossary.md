@@ -30,6 +30,10 @@ informative.
 location with activations from a different forward pass, to isolate which
 components are causally responsible for a behaviour.
 
+**Superposition** — a model representing more features than it has dimensions by placing
+them in non-orthogonal directions, tolerated because sparse features rarely co-activate.
+Demonstrated in `notebooks/superposition/toy_models_of_superposition.ipynb`.
+
 ## Arabic terms
 
 **MSA — Modern Standard Arabic** — the formal written Arabic used across the
