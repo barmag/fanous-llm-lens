@@ -107,3 +107,14 @@ def test_sparse_represents_more_than_dense():
     lib["train"](dense, sparsity=0.0, importance=imp, steps=4000, seed=0)
     lib["train"](sparse, sparsity=0.9, importance=imp, steps=4000, seed=0)
     assert lib["count_represented"](sparse) > lib["count_represented"](dense)
+
+
+def test_sparsity_sweep_monotone_endpoints():
+    lib = load_lib()
+    torch.manual_seed(0)
+    counts, weights = lib["sparsity_sweep"](
+        n_features=20, n_hidden=5, sparsities=[0.0, 0.99], seed=0
+    )
+    assert len(counts) == 2 and len(weights) == 2
+    assert weights[0].shape == (5, 20)
+    assert counts[-1] > counts[0]
