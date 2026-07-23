@@ -164,3 +164,13 @@ def test_project_component_recovers_pentagon_angles():
                 [1.0, float(np.cos(2 * np.pi / 5)), float(np.cos(4 * np.pi / 5))]}
     got = {round(v, 3) for v in cosines.tolist()}
     assert got == expected
+
+
+def test_project_component_pads_singleton_to_d_rows():
+    """A k=1 component must still come back [d, k] so plotting code can index row 1."""
+    ns = load_lib()
+    W = torch.eye(3)
+    coords = ns["project_component"](W, [0], d=2)
+    assert coords.shape == (2, 1)
+    assert abs(float(coords[0, 0])) > 0.9  # the feature's norm survives in row 0
+    assert float(coords[1, 0]) == 0.0      # padded row
