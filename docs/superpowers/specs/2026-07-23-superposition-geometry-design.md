@@ -137,3 +137,27 @@ approved ROCm stack.
 
 **Convention notes:** narrative/reproduction notebook → ships executed with outputs.
 Commit messages name results, not changes.
+
+## Amendment 2 — Act 7: hunting the tetrahedron (post-execution follow-up)
+
+Seed 0's executed sweep met three of the four geometric success criteria (digon,
+triangle, pentagon exact); the tetrahedron did not form — the component nearest ¾ was
+a 17-feature tangle in the moderate-sparsity instance. Two hypotheses: tetrahedra are
+**rare** (one seed missed), or the ¾ regime **converges slowly** (10k steps left the
+model mid-organization). Act 7 tests both, inserted before the recap:
+
+- **Act 7a — 4-in-3 ladder (calibration).** `BatchedToyModel(10, 4, 3)`,
+  instances-as-densities log-spaced 1 → 0.05, 10k steps (tiny model, seconds, no
+  cache). Predictions: dense → 3 dedicated + 1 dropped (D = 1,1,1,0); middle band →
+  regular tetrahedron (unit norms, pairwise cosines −⅓, D = ¾); sparse end reported
+  as found. Establishes reachability and the density band that owns the shape.
+- **Act 7b — seed hunt at paper scale.** `BatchedToyModel(20, 200, 20)`,
+  instances-as-seeds: all 20 at fixed density 0.71 (the regime that grew seed 0's
+  blob), independent inits/data, one 10k-step loop (~6 min), cached to
+  `cache/tetra_hunt.pt`. Readout: per-seed component-size census; a **hit** is a
+  size-4 component with mean D within 0.05 of ¾; print the best hit's Gram matrix
+  (→ −⅓). One-line claim: "N/20 seeds formed ≥1 tetrahedron." N=0 is reportable
+  (points at convergence, not rarity, and gets said in markdown).
+
+No new lib cells — both parts reuse tested pieces. Recap gains an Act 7 bullet with
+the measured outcome. Ships in the same PR (#7) as the rest of book two.
