@@ -6,6 +6,7 @@ of the notebook into a fresh namespace. No GPU needed.
 import json
 from pathlib import Path
 
+import numpy as np
 import torch
 
 NB = (
@@ -138,3 +139,28 @@ def test_train_batched_reduces_loss_and_snapshots():
     assert log["losses"][-1][1] < log["losses"][0][1]
     assert log["snap_steps"][0] == 0 and log["snap_steps"][-1] == 299
     assert log["snapshots"][0].shape == (2, 3, 8)
+
+
+def test_interference_components_block_structure():
+    ns = load_lib()
+    # two orthogonal digons + one dropped feature in 4 dims
+    W = torch.zeros(4, 5)
+    W[0, 0], W[0, 1] = 1.0, -1.0   # digon A in dim 0
+    W[1, 2], W[1, 3] = 1.0, -1.0   # digon B in dim 1
+    comps = ns["interference_components"](W)
+    assert sorted(map(sorted, comps)) == [[0, 1], [2, 3]]  # feature 4 dropped
+
+
+def test_project_component_recovers_pentagon_angles():
+    ns = load_lib()
+    ang = 2 * torch.pi * torch.arange(5) / 5
+    P = torch.stack([torch.cos(ang), torch.sin(ang)])          # [2, 5]
+    Q, _ = torch.linalg.qr(torch.randn(7, 7))
+    W = Q[:, :2] @ P                                           # pentagon hidden in 7 dims
+    coords = ns["project_component"](W, [0, 1, 2, 3, 4], d=2)  # [2, 5]
+    C = coords.T @ coords                                      # Gram matrix
+    cosines = (C / C.diag().sqrt().outer(C.diag().sqrt())).flatten()
+    expected = {round(v, 3) for v in
+                [1.0, float(np.cos(2 * np.pi / 5)), float(np.cos(4 * np.pi / 5))]}
+    got = {round(v, 3) for v in cosines.tolist()}
+    assert got == expected
