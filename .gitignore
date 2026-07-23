@@ -87,3 +87,6 @@ logs/
 
 # Phase A trained model checkpoints (large binaries; regenerate via run_probes.py)
 experiments/embedding-probes/checkpoints/
+
+# Superposition book two caches sweep/dynamics runs here
+notebooks/superposition/cache/
