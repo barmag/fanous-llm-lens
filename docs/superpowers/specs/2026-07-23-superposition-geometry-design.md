@@ -22,9 +22,14 @@ configuration.
 
 ### In
 1. **Feature dimensionality + plateau sweep** — define
-   `Dᵢ = ‖Wᵢ‖² / Σⱼ (Ŵᵢ·Wⱼ)²`, sweep sparsity at n=400, m=30 (paper's setup,
-   confirmed against the local copy), reproduce the sticky-plateau plot of
+   `Dᵢ = ‖Wᵢ‖² / Σⱼ (Ŵᵢ·Wⱼ)²`, sweep sparsity, reproduce the sticky-plateau plot of
    `D* = m/‖W‖²_F` vs `1/(1−S)` plus the per-feature scatter.
+   *(Amended 2026-07-23 against the Colab: the paper text says n=400, m=30, but the
+   Colab's actual geometry experiment uses n=200, m=20 with 20 sparsity instances
+   trained simultaneously in one batched loop — `feature_probability =
+   20^−linspace(0,1,20)`, constant importance, AdamW lr=1e-3 constant, 10k steps,
+   batch 1024. We follow the Colab and adopt its batched-instances device as a lib
+   cell; it also collapses the sweep's runtime from ~20 sequential runs to one.)*
 2. **Polytope identification** — show the plateaus ARE polytopes via interference-graph
    components (the paper's tegum factors) and per-component PCA + Gram-matrix angles.
 3. **Energy-level jumps** — one training run in the digon regime; per-feature
@@ -125,9 +130,10 @@ pinned against the paper's Colab during implementation, per the repo's
 - ≥1 loss drop aligned with a dimensionality jump.
 - Pentagon deformation monotone with the perturbed feature's sparsity until a snap.
 
-**Runtime:** first pass ≤ ~30 min CPU — smoke-test 3 grid points before launching the
-full sweep, and shrink n=400→200 or the grid if measured worse. Cached re-run <10 min
-end-to-end, per repo convention. GPU optional via the approved ROCm stack.
+**Runtime:** first pass ≤ ~30 min CPU — the batched-instances loop trains all 20
+sparsities at once; smoke-test ~100 steps and extrapolate before launching the full
+10k. Cached re-run <10 min end-to-end, per repo convention. GPU optional via the
+approved ROCm stack.
 
 **Convention notes:** narrative/reproduction notebook → ships executed with outputs.
 Commit messages name results, not changes.
