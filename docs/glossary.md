@@ -34,6 +34,13 @@ components are causally responsible for a behaviour.
 them in non-orthogonal directions, tolerated because sparse features rarely co-activate.
 Demonstrated in `notebooks/superposition/toy_models_of_superposition.ipynb`.
 
+**Feature dimensionality** — for feature *i* with embedding column `Wᵢ`,
+`Dᵢ = ‖Wᵢ‖² / Σⱼ(Ŵᵢ·Wⱼ)²`: the fraction of a hidden dimension the feature gets to
+keep after sharing with everything that interferes with it. Superposed solutions
+concentrate at fractions of small integers (½ digon, ⅔ triangle, ¾ tetrahedron,
+⅖ pentagon, ⅜ square antiprism) — the signature that superposition is organized into
+uniform polytopes. (Elhage et al. 2022; `superposition_geometry.ipynb`.)
+
 ## Arabic terms
 
 **MSA — Modern Standard Arabic** — the formal written Arabic used across the
