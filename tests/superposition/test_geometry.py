@@ -96,3 +96,45 @@ def test_frobenius_dims_per_feature():
     assert abs(ns["frobenius_dims_per_feature"](torch.eye(4)) - 1.0) < 1e-6
     # pentagon: 5 unit-norm features in 2 dims -> 2/5 dims per feature
     assert abs(ns["frobenius_dims_per_feature"](_pentagon_W()) - 0.4) < 1e-5
+
+
+def test_batched_model_shapes():
+    ns = load_lib()
+    mdl = ns["BatchedToyModel"](3, 10, 4)
+    x = torch.rand(8, 3, 10)
+    out = mdl(x)
+    assert out.shape == (8, 3, 10)
+    assert (out >= 0).all()
+
+
+def test_batched_model_matches_single_instance():
+    """One instance of the batched model computes the same function as ToyModel."""
+    ns = load_lib()
+    single = ns["ToyModel"](6, 3)
+    batched = ns["BatchedToyModel"](1, 6, 3)
+    with torch.no_grad():
+        batched.W.copy_(single.W.unsqueeze(0))
+        batched.b.copy_(single.b.unsqueeze(0))
+    x = torch.rand(5, 6)
+    assert torch.allclose(single(x), batched(x.unsqueeze(1))[:, 0], atol=1e-6)
+
+
+def test_make_batch_batched_per_instance_sparsity():
+    ns = load_lib()
+    gen = torch.Generator().manual_seed(0)
+    S = torch.tensor([0.0, 0.9])
+    x = ns["make_batch_batched"](2, 50, S, 2048, generator=gen)
+    assert x.shape == (2048, 2, 50)
+    zero_frac = (x == 0).float().mean(dim=(0, 2))
+    assert zero_frac[0].item() < 0.02
+    assert 0.88 < zero_frac[1].item() < 0.92
+
+
+def test_train_batched_reduces_loss_and_snapshots():
+    ns = load_lib()
+    torch.manual_seed(0)
+    mdl = ns["BatchedToyModel"](2, 8, 3)
+    log = ns["train_batched"](mdl, torch.tensor([0.5, 0.9]), steps=300, snapshot_every=100)
+    assert log["losses"][-1][1] < log["losses"][0][1]
+    assert log["snap_steps"][0] == 0 and log["snap_steps"][-1] == 299
+    assert log["snapshots"][0].shape == (2, 3, 8)
