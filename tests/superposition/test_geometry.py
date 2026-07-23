@@ -56,3 +56,43 @@ def test_train_reduces_loss():
     mdl = ns["ToyModel"](5, 2)
     losses = ns["train"](mdl, sparsity=0.0, importance=torch.ones(5), steps=600)
     assert losses[-1] < losses[0]
+
+
+def _pentagon_W():
+    ang = 2 * torch.pi * torch.arange(5) / 5
+    return torch.stack([torch.cos(ang), torch.sin(ang)])  # [2, 5], unit columns
+
+
+def test_dimensionality_identity_is_one():
+    ns = load_lib()
+    D = ns["feature_dimensionality"](torch.eye(4))
+    assert torch.allclose(D, torch.ones(4), atol=1e-5)
+
+
+def test_dimensionality_antipodal_is_half():
+    ns = load_lib()
+    W = torch.tensor([[1.0, -1.0]])  # one dim, two antipodal features
+    D = ns["feature_dimensionality"](W)
+    assert torch.allclose(D, torch.full((2,), 0.5), atol=1e-5)
+
+
+def test_dimensionality_pentagon_is_two_fifths():
+    ns = load_lib()
+    D = ns["feature_dimensionality"](_pentagon_W())
+    assert torch.allclose(D, torch.full((5,), 0.4), atol=1e-4)
+
+
+def test_dimensionality_zero_column_is_zero():
+    ns = load_lib()
+    W = torch.eye(3)
+    W[:, 2] = 0.0
+    D = ns["feature_dimensionality"](W)
+    assert D[2].item() == 0.0
+    assert torch.allclose(D[:2], torch.ones(2), atol=1e-5)
+
+
+def test_frobenius_dims_per_feature():
+    ns = load_lib()
+    assert abs(ns["frobenius_dims_per_feature"](torch.eye(4)) - 1.0) < 1e-6
+    # pentagon: 5 unit-norm features in 2 dims -> 2/5 dims per feature
+    assert abs(ns["frobenius_dims_per_feature"](_pentagon_W()) - 0.4) < 1e-5
