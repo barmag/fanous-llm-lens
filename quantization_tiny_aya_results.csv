@@ -1,0 +1,445 @@
+model,precision,language,layer,target_prob,target_token,target_id
+tiny-aya-earth-3.35b,FP16,EN,0,0.0, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,1,0.0, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,2,0.0, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,3,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,4,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,5,4.827976226806641e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,6,1.2040138244628906e-05, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,7,1.2218952178955078e-05, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,8,1.7285346984863281e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,9,3.4570693969726562e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,10,3.0994415283203125e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,11,1.3709068298339844e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,12,1.3113021850585938e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,13,1.5497207641601562e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,14,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,15,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,16,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,17,3.5762786865234375e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,18,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,19,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,20,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,21,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,22,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,23,4.470348358154297e-06, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,24,1.150369644165039e-05, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,25,0.0003616809844970703, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,26,0.0003437995910644531, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,27,0.0006513595581054688, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,28,0.00360107421875, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,29,0.0123138427734375, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,30,0.0193328857421875, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,31,0.00685882568359375, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,32,0.006256103515625, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,33,0.004825592041015625, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,34,0.026336669921875, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,35,0.048248291015625, Cairo,147633
+tiny-aya-earth-3.35b,FP16,EN,36,0.50048828125, Cairo,147633
+tiny-aya-earth-3.35b,FP16,MSA,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,2,1.1920928955078125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,3,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,4,1.430511474609375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,5,1.0132789611816406e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,6,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,7,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,8,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,9,1.0728836059570312e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,10,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,11,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,12,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,13,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,14,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,15,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,16,1.430511474609375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,17,4.708766937255859e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,18,2.5033950805664062e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,19,1.8477439880371094e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,20,1.1920928955078125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,21,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,22,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,23,5.304813385009766e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,24,2.1457672119140625e-05, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,25,8.445978164672852e-05, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,26,0.00036597251892089844, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,27,0.0004367828369140625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,28,0.00140380859375, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,29,0.002964019775390625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,30,0.0031280517578125, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,31,0.0034465789794921875, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,32,0.0015115737915039062, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,33,0.0015354156494140625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,34,0.0292205810546875, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,35,0.01342010498046875, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,MSA,36,0.32275390625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,2,1.1920928955078125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,3,8.344650268554688e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,4,1.1920928955078125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,5,1.6093254089355469e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,6,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,7,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,8,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,9,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,10,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,11,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,12,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,13,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,14,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,15,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,16,1.0728836059570312e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,17,2.6226043701171875e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,18,1.7285346984863281e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,19,2.1457672119140625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,20,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,21,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,22,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,23,4.351139068603516e-06, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,24,2.008676528930664e-05, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,25,5.8770179748535156e-05, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,26,0.0005359649658203125, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,27,0.0005440711975097656, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,28,0.0014553070068359375, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,29,0.0028476715087890625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,30,0.00292205810546875, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,31,0.003238677978515625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,32,0.001312255859375, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,33,0.0017042160034179688, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,34,0.0207672119140625, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,35,0.00800323486328125, القاهرة,97936
+tiny-aya-earth-3.35b,FP16,Masri,36,0.218505859375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,EN,0,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,1,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,2,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,3,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,4,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,5,4.887580871582031e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,6,1.043081283569336e-05, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,7,1.055002212524414e-05, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,8,1.5497207641601562e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,9,3.4570693969726562e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,10,3.2782554626464844e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,11,1.7285346984863281e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,12,1.3709068298339844e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,13,2.086162567138672e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,14,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,15,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,16,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,17,5.364418029785156e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,18,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,19,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,20,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,21,3.5762786865234375e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,22,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,23,3.6954879760742188e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,24,1.1026859283447266e-05, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,25,0.00055694580078125, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,26,0.00043773651123046875, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,27,0.0006246566772460938, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,28,0.0035915374755859375, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,29,0.01074981689453125, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,30,0.017059326171875, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,31,0.005428314208984375, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,32,0.00554656982421875, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,33,0.004459381103515625, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,34,0.0238800048828125, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,35,0.059173583984375, Cairo,147633
+tiny-aya-earth-3.35b,Int8,EN,36,0.64404296875, Cairo,147633
+tiny-aya-earth-3.35b,Int8,MSA,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,2,1.1920928955078125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,3,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,4,1.5497207641601562e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,5,8.344650268554688e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,6,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,7,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,8,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,9,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,10,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,11,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,12,8.344650268554688e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,13,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,14,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,15,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,16,1.8477439880371094e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,17,5.245208740234375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,18,3.337860107421875e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,19,2.384185791015625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,20,1.2516975402832031e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,21,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,22,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,23,8.821487426757812e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,24,2.8014183044433594e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,25,8.863210678100586e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,26,0.00039386749267578125, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,27,0.00044155120849609375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,28,0.001361846923828125, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,29,0.002620697021484375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,30,0.0028667449951171875, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,31,0.0025157928466796875, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,32,0.0010471343994140625, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,33,0.0010290145874023438, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,34,0.0235443115234375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,35,0.01236724853515625, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,MSA,36,0.311279296875, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,2,1.1920928955078125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,3,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,4,1.4901161193847656e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,5,1.3709068298339844e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,6,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,7,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,8,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,9,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,10,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,11,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,12,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,13,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,14,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,15,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,16,1.430511474609375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,17,3.6954879760742188e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,18,1.9669532775878906e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,19,2.384185791015625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,20,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,21,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,22,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,23,5.7220458984375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,24,2.4557113647460938e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,25,8.815526962280273e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,26,0.0008282661437988281, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,27,0.0008115768432617188, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,28,0.0019855499267578125, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,29,0.0036945343017578125, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,30,0.0036678314208984375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,31,0.003192901611328125, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,32,0.0014171600341796875, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,33,0.0017614364624023438, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,34,0.01708984375, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,35,0.007732391357421875, القاهرة,97936
+tiny-aya-earth-3.35b,Int8,Masri,36,0.2125244140625, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,EN,0,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,1,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,2,0.0, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,3,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,4,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,5,4.112720489501953e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,6,9.119510650634766e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,7,1.0371208190917969e-05, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,8,1.4901161193847656e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,9,1.9669532775878906e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,10,2.205371856689453e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,11,7.748603820800781e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,12,7.748603820800781e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,13,1.2516975402832031e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,14,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,15,2.384185791015625e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,16,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,17,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,18,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,19,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,20,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,21,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,22,1.1920928955078125e-07, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,23,9.417533874511719e-06, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,24,1.4603137969970703e-05, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,25,0.0005650520324707031, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,26,0.0004718303680419922, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,27,0.000614166259765625, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,28,0.002788543701171875, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,29,0.00571441650390625, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,30,0.0089111328125, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,31,0.0017480850219726562, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,32,0.0023097991943359375, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,33,0.0023860931396484375, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,34,0.034210205078125, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,35,0.07696533203125, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,EN,36,0.26953125, Cairo,147633
+tiny-aya-earth-3.35b,Int4 RTN,MSA,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,2,1.7881393432617188e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,3,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,4,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,5,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,6,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,7,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,8,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,9,1.5497207641601562e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,10,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,11,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,12,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,13,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,14,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,15,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,16,1.6093254089355469e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,17,4.0531158447265625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,18,2.1457672119140625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,19,1.7285346984863281e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,20,1.0728836059570312e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,21,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,22,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,23,3.2186508178710938e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,24,7.62939453125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,25,4.595518112182617e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,26,0.0002143383026123047, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,27,0.00031876564025878906, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,28,0.00112152099609375, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,29,0.0017948150634765625, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,30,0.0024051666259765625, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,31,0.00206756591796875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,32,0.0014581680297851562, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,33,0.0009665489196777344, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,34,0.01233673095703125, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,35,0.0042724609375, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,MSA,36,0.1376953125, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,2,1.1920928955078125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,3,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,4,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,5,1.3113021850585938e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,6,9.5367431640625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,7,1.1920928955078125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,8,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,9,1.2516975402832031e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,10,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,11,1.7881393432617188e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,12,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,13,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,14,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,15,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,16,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,17,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,18,1.430511474609375e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,19,1.4901161193847656e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,20,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,21,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,22,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,23,2.384185791015625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,24,8.046627044677734e-06, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,25,3.361701965332031e-05, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,26,0.0002351999282836914, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,27,0.0002906322479248047, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,28,0.0010356903076171875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,29,0.00164794921875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,30,0.0018587112426757812, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,31,0.001964569091796875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,32,0.0014629364013671875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,33,0.0010585784912109375, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,34,0.01097869873046875, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,35,0.00360870361328125, القاهرة,97936
+tiny-aya-earth-3.35b,Int4 RTN,Masri,36,0.1146240234375, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,EN,0,0.0, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,1,0.0, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,2,0.0, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,3,0.0, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,4,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,5,4.470348358154297e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,6,1.055002212524414e-05, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,7,1.1026859283447266e-05, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,8,1.3113021850585938e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,9,2.086162567138672e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,10,3.4570693969726562e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,11,1.7881393432617188e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,12,1.9073486328125e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,13,4.947185516357422e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,14,5.364418029785156e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,15,4.76837158203125e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,16,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,17,4.76837158203125e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,18,2.980232238769531e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,19,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,20,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,21,1.7881393432617188e-07, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,22,5.960464477539063e-08, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,23,2.2649765014648438e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,24,4.410743713378906e-06, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,25,7.69495964050293e-05, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,26,0.00015914440155029297, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,27,0.0004210472106933594, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,28,0.0019369125366210938, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,29,0.007511138916015625, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,30,0.01342010498046875, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,31,0.006816864013671875, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,32,0.0051422119140625, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,33,0.005645751953125, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,34,0.01442718505859375, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,35,0.0235748291015625, Cairo,147633
+tiny-aya-earth-3.35b,NF4,EN,36,0.423583984375, Cairo,147633
+tiny-aya-earth-3.35b,NF4,MSA,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,2,5.960464477539063e-08, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,3,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,4,1.0132789611816406e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,5,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,6,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,7,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,8,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,9,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,10,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,11,3.5762786865234375e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,12,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,13,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,14,4.172325134277344e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,15,1.0728836059570312e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,16,1.2516975402832031e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,17,3.516674041748047e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,18,2.384185791015625e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,19,1.8477439880371094e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,20,1.1920928955078125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,21,5.364418029785156e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,22,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,23,4.112720489501953e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,24,1.341104507446289e-05, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,25,4.214048385620117e-05, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,26,0.0003249645233154297, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,27,0.0004622936248779297, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,28,0.0014238357543945312, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,29,0.0030078887939453125, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,30,0.0034637451171875, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,31,0.003345489501953125, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,32,0.0014066696166992188, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,33,0.0013399124145507812, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,34,0.01580810546875, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,35,0.006580352783203125, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,MSA,36,0.2283935546875, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,0,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,1,0.0, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,2,5.960464477539063e-08, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,3,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,4,1.0132789611816406e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,5,1.4901161193847656e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,6,7.748603820800781e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,7,5.960464477539062e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,8,1.7881393432617188e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,9,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,10,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,11,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,12,6.556510925292969e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,13,2.980232238769531e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,14,2.384185791015625e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,15,8.940696716308594e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,16,1.0132789611816406e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,17,3.0994415283203125e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,18,1.9669532775878906e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,19,1.7881393432617188e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,20,7.152557373046875e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,21,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,22,4.76837158203125e-07, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,23,3.635883331298828e-06, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,24,1.4185905456542969e-05, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,25,2.6524066925048828e-05, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,26,0.0003407001495361328, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,27,0.0003592967987060547, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,28,0.0012540817260742188, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,29,0.0024738311767578125, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,30,0.0029354095458984375, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,31,0.0034732818603515625, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,32,0.0014200210571289062, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,33,0.0018415451049804688, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,34,0.016082763671875, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,35,0.003948211669921875, القاهرة,97936
+tiny-aya-earth-3.35b,NF4,Masri,36,0.1285400390625, القاهرة,97936

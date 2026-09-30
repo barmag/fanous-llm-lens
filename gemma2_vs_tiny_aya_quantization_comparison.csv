@@ -1,0 +1,22 @@
+Model,Precision,Language,P(Target),Delta vs FP16 (%)
+Gemma-2-2B (2.6B),FP16,EN,0.964,0.0
+Gemma-2-2B (2.6B),FP16,MSA,0.3786,0.0
+Gemma-2-2B (2.6B),FP16,Masri,0.2382,0.0
+Gemma-2-2B (2.6B),Int8,EN,0.9615,-0.3
+Gemma-2-2B (2.6B),Int8,MSA,0.3088,-18.5
+Gemma-2-2B (2.6B),Int8,Masri,0.2215,-7.0
+Gemma-2-2B (2.6B),Int4 RTN,EN,0.6904,-28.4
+Gemma-2-2B (2.6B),Int4 RTN,MSA,0.1296,-65.8
+Gemma-2-2B (2.6B),Int4 RTN,Masri,0.0646,-72.9
+Tiny Aya Earth (3.35B),FP16,EN,0.5005,0.0
+Tiny Aya Earth (3.35B),FP16,MSA,0.3228,0.0
+Tiny Aya Earth (3.35B),FP16,Masri,0.2185,0.0
+Tiny Aya Earth (3.35B),Int8,EN,0.644,28.7
+Tiny Aya Earth (3.35B),Int8,MSA,0.3113,-3.6
+Tiny Aya Earth (3.35B),Int8,Masri,0.2125,-2.7
+Tiny Aya Earth (3.35B),Int4 RTN,EN,0.2695,-46.1
+Tiny Aya Earth (3.35B),Int4 RTN,MSA,0.1377,-57.3
+Tiny Aya Earth (3.35B),Int4 RTN,Masri,0.1146,-47.5
+Tiny Aya Earth (3.35B),NF4,EN,0.4236,-15.4
+Tiny Aya Earth (3.35B),NF4,MSA,0.2284,-29.2
+Tiny Aya Earth (3.35B),NF4,Masri,0.1285,-41.2
